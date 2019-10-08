@@ -18,11 +18,13 @@ class PrintInformationPatches():
     def _onMachineChanged(self) -> None:
         if self._global_stack:
             self._global_stack.containersChanged.disconnect(self._onContainersChanged)
+            self._global_stack.metaDataChanged.disconnect(self._onContainersChanged)
 
         self._global_stack = CuraApplication.getInstance().getGlobalContainerStack()
 
         if self._global_stack:
             self._global_stack.containersChanged.connect(self._onContainersChanged)
+            self._global_stack.metaDataChanged.connect(self._onContainersChanged)
 
     def _onContainersChanged(self, container: Any) -> None:
         self._print_information._updateJobName()
@@ -31,19 +33,36 @@ class PrintInformationPatches():
     ##  Created an acronymn-like abbreviated machine name from the currently active machine name
     #   Called each time the global stack is switched
     def _defineAbbreviatedMachineName(self) -> None:
+        self._print_information._abbr_machine = self.getFormattedPrefix()
+
+    def getFormattedPrefix(self) -> str:
         global_container_stack = self._print_information._application.getGlobalContainerStack()
         if not global_container_stack:
-            self._print_information._abbr_machine = ""
-            return
+            return ""
 
         extruder_stack = self._print_information._application.getMachineManager()._active_container_stack
         if not extruder_stack:
-            return
+            return ""
 
-        material_type = self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material"))
-        printer_name = self._abbreviate_name(global_container_stack.getName())
-        self._print_information._abbr_machine = "%s_%s" % (printer_name, material_type)
-        return
+        job_prefix = global_container_stack.getMetaDataEntry("custom_job_prefix", "")
+        if not job_prefix:
+            active_machine_type_name = global_container_stack.definition.getName()
+            return self._abbreviate_name(active_machine_type_name)
+        else:
+            # TODO: pattern replacement
+            replacements = {
+                "{printer_name}": self._abbreviate_name(global_container_stack.getName()),
+                "{printer_type}": self._abbreviate_name(global_container_stack.definition.getName()),
+                "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
+                "{layer_height}": self._abbreviate_number(global_container_stack.getProperty("layer_height", "value")),
+                "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value"))
+            }
+            for pattern, replacement in replacements.items():
+                job_prefix = job_prefix.replace(pattern, replacement)
+            return job_prefix
+
+    def _abbreviate_number(self, number: float) -> str:
+        return str(number).replace(".", "")
 
     def _abbreviate_name(self, name: str) -> str:
         abbr_name = ""
@@ -54,9 +73,9 @@ class PrintInformationPatches():
                 abbr_name += word
             else:
                 stripped_word = self._print_information._stripAccents(word.upper())
-                # - use only the first character if the word is too long (> 3 characters)
-                # - use the whole word if it's not too long (<= 3 characters)
-                if len(stripped_word) > 3:
+                # - use only the first character if the word is too long (> 4 characters)
+                # - use the whole word if it's not too long (<= 4 characters)
+                if len(stripped_word) > 4:
                     stripped_word = stripped_word[0]
                 abbr_name += stripped_word
 

@@ -1,10 +1,12 @@
 # Copyright (c) 2019 fieldOfView
 # CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
+import os.path
+
 from UM.Extension import Extension
 from cura.CuraApplication import CuraApplication
 
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal
 
 from . import PrintInformationPatches
 
@@ -26,12 +28,37 @@ class CustomJobPrefix(Extension, QObject,):
         self._print_information_patches = None
 
         self._application.engineCreatedSignal.connect(self._onEngineCreated)
+        self._application.globalContainerStackChanged.connect(self._onGlobalStackChanged)
 
-    def _onEngineCreated(self):
+    def _onEngineCreated(self) -> None:
         self._print_information_patches = PrintInformationPatches.PrintInformationPatches(self._application.getPrintInformation())
 
-    def showNameDialog(self):
+    def _onGlobalStackChanged(self) -> None:
+        self.jobPrefixChanged.emit()
+
+    def showNameDialog(self) -> None:
+        global_container_stack = self._application.getGlobalContainerStack()
+        if not global_container_stack:
+            return
+
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PrefixDialog.qml")
         self._create_profile_window = self._application.createQmlComponent(path, {"manager": self})
         self._create_profile_window.show()
 
+    jobPrefixChanged = pyqtSignal()
+
+    def setJobPrefix(self, prefix: str) -> None:
+        global_container_stack = self._application.getGlobalContainerStack()
+        if not global_container_stack:
+            return
+
+        global_container_stack.setMetaDataEntry("custom_job_prefix", prefix)
+        self.jobPrefixChanged.emit()
+
+    @pyqtProperty(str, fset=setJobPrefix, notify=jobPrefixChanged)
+    def jobPrefix(self) -> str:
+        global_container_stack = self._application.getGlobalContainerStack()
+        if not global_container_stack:
+            return ""
+
+        return global_container_stack.getMetaDataEntry("custom_job_prefix", "")
