@@ -13,13 +13,10 @@ UM.Dialog
 {
     id: base
 
-    property string dialogTitle: catalog.i18nc("@title:window", "Custom Printjob Prefix")
-    property string explanation: catalog.i18nc("@info", "Enter the prefix to use for printer %0.").arg(Cura.MachineManager.activeMachine.name)
-
-    title: dialogTitle
+    title: catalog.i18nc("@title:window", "Custom Printjob Prefix")
 
     minimumWidth: 400 * screenScaleFactor
-    minimumHeight: 120 * screenScaleFactor
+    minimumHeight: 180 * screenScaleFactor
     width: minimumWidth
     height: minimumHeight
 
@@ -28,10 +25,11 @@ UM.Dialog
     Column
     {
         anchors.fill: parent
+        spacing: UM.Theme.getSize("default_margin").height
 
         Label
         {
-            text: base.explanation + "\n" //Newline to make some space using system theming.
+            text: catalog.i18nc("@info", "Enter the prefix to use for printer %0.").arg(Cura.MachineManager.activeMachineName)
             width: parent.width
             wrapMode: Text.WordWrap
         }
@@ -45,6 +43,19 @@ UM.Dialog
             validator: RegExpValidator {
                 regExp: /^[^\\\/\*\?\|\[\]]*$/
             }
+        }
+
+        Label
+        {
+            text: catalog.i18nc("@info", "Available replacement patterns:")
+            width: parent.width
+            wrapMode: Text.WordWrap
+        }
+        Label
+        {
+            text: "{printer_name}, {printer_type}, {material_type}, {layer_height}, {machine_nozzle_size}"
+            width: parent.width
+            wrapMode: Text.WordWrap
         }
     }
 
