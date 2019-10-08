@@ -39,7 +39,7 @@ UM.Dialog
             id: prefixField
             width: parent.width
             text: manager.jobPrefix
-            maximumLength: 80
+            maximumLength: 255
             validator: RegExpValidator {
                 regExp: /^[^\\\/\*\?\|\[\]]*$/
             }
