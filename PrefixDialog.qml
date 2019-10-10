@@ -16,7 +16,7 @@ UM.Dialog
     title: catalog.i18nc("@title:window", "Custom Printjob Prefix")
 
     minimumWidth: 400 * screenScaleFactor
-    minimumHeight: 180 * screenScaleFactor
+    minimumHeight: 220 * screenScaleFactor
     width: minimumWidth
     height: minimumHeight
 
@@ -53,7 +53,7 @@ UM.Dialog
         }
         Label
         {
-            text: "{printer_name}, {printer_type}, {material_type}, {layer_height}, {machine_nozzle_size}"
+            text: "{printer_name}, {printer_type}, {layer_height}, {machine_nozzle_size}, {material_type}, {material_weight}, {print_time_hours}, {print_time_minutes}, {date_year}, {date_month}, {date_day}, {time_hour}, {time_minutes}"
             width: parent.width
             wrapMode: Text.WordWrap
         }
