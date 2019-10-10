@@ -30,8 +30,8 @@ class PrintInformationPatches():
         self._print_information._updateJobName()
 
 
-    ##  Created an acronymn-like abbreviated machine name from the currently active machine name
-    #   Called each time the global stack is switched
+    ##  Hijacked to create a full prefix instead of an acronymn-like abbreviated machine name from the active machine name
+    #   Called each time the global stack is switched, when settings change and when the global stack metadata changes
     def _defineAbbreviatedMachineName(self) -> None:
         self._print_information._abbr_machine = self.getFormattedPrefix()
 
@@ -46,10 +46,10 @@ class PrintInformationPatches():
 
         job_prefix = global_container_stack.getMetaDataEntry("custom_job_prefix", "")
         if not job_prefix:
+            # Use the default abbreviation of the active machine name
             active_machine_type_name = global_container_stack.definition.getName()
             return self._abbreviate_name(active_machine_type_name)
         else:
-            # TODO: pattern replacement
             replacements = {
                 "{printer_name}": self._abbreviate_name(global_container_stack.getName()),
                 "{printer_type}": self._abbreviate_name(global_container_stack.definition.getName()),
