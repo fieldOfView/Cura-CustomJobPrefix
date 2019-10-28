@@ -57,7 +57,7 @@ class PrintInformationPatches():
         if not self._global_stack:
             return ""
 
-        extruder_stack = self._application.getMachineManager()._active_container_stack
+        extruder_stack = self._application.getExtruderManager().getActiveExtruderStacks()[0]
         if not extruder_stack:
             return ""
         extruder_nr = extruder_stack.getProperty("extruder_nr", "value")
