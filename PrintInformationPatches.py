@@ -8,18 +8,30 @@ from typing import Any, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from cura.Settings.GlobalStack import GlobalStack
 
+from UM.i18n import i18nCatalog
+catalog = i18nCatalog("cura")
+
 class PrintInformationPatches():
     def __init__(self, print_information) -> None:
         self._print_information = print_information
         self._print_information._defineAbbreviatedMachineName = self._defineAbbreviatedMachineName
         self._print_information.currentPrintTimeChanged.connect(self._triggerJobNameUpdate)
         self._print_information.materialWeightsChanged.connect(self._triggerJobNameUpdate)
+        self._print_information.jobNameChanged.connect(self._onJobNameChanged)
 
         self._application = self._print_information._application
 
         self._global_stack = None # type: Optional[GlobalStack]
         CuraApplication.getInstance().getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
         self._onMachineChanged()
+
+    def _onJobNameChanged(self) -> None:
+        if self._print_information._is_user_specified_job_name:
+            job_name = self._print_information._job_name
+            if job_name == catalog.i18nc("@text Print job name", "Untitled"):
+                return
+
+            self._print_information._is_user_specified_job_name = False
 
     def _onMachineChanged(self) -> None:
         if self._global_stack:
@@ -34,7 +46,6 @@ class PrintInformationPatches():
 
     def _triggerJobNameUpdate(self, *args, **kwargs) -> None:
         self._print_information._updateJobName()
-
 
     ##  Hijacked to create a full prefix instead of an acronymn-like abbreviated machine name from the active machine name
     #   Called each time the global stack is switched, when settings change, when the global stack metadata changes and
