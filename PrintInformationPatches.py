@@ -51,9 +51,9 @@ class PrintInformationPatches():
     #   Called each time the global stack is switched, when settings change, when the global stack metadata changes and
     #   when a slice is completed
     def _defineAbbreviatedMachineName(self) -> None:
-        self._print_information._abbr_machine = self.getFormattedPrefix()
+        self._print_information._abbr_machine = self._getFormattedPrefix()
 
-    def getFormattedPrefix(self) -> str:
+    def _getFormattedPrefix(self) -> str:
         if not self._global_stack:
             return ""
 
@@ -73,6 +73,8 @@ class PrintInformationPatches():
                 "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
                 "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
                 "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
+                "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
+                "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
                 "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
                 "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
                 "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
