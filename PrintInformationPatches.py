@@ -14,7 +14,10 @@ catalog = i18nCatalog("cura")
 class PrintInformationPatches():
     def __init__(self, print_information) -> None:
         self._print_information = print_information
-        self._print_information._defineAbbreviatedMachineName = self._defineAbbreviatedMachineName
+        if hasattr(self._print_information, "_defineAbbreviatedMachineName"):
+            self._print_information._defineAbbreviatedMachineName = self._defineAbbreviatedMachineName
+        else:
+            self._print_information._setAbbreviatedMachineName = self._defineAbbreviatedMachineName # 4.0 and before
         self._print_information.currentPrintTimeChanged.connect(self._triggerJobNameUpdate)
         self._print_information.materialWeightsChanged.connect(self._triggerJobNameUpdate)
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
