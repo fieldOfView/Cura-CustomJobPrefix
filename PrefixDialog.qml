@@ -29,7 +29,12 @@ UM.Dialog
 
         Label
         {
-            text: catalog.i18nc("@info", "Enter the prefix to use for printer %0.").arg(Cura.MachineManager.activeMachineName)
+            text:
+            {
+                var printer_name = Cura.MachineManager.activeMachineName;
+                if (printer_name === undefined) printer_name = Cura.MachineManager.activeMachine.name;
+                return catalog.i18nc("@info", "Enter the prefix to use for printer %0.").arg(printer_name);
+            }
             width: parent.width
             wrapMode: Text.WordWrap
         }
