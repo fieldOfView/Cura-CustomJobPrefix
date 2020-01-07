@@ -20,6 +20,8 @@ UM.Dialog
     width: minimumWidth
     height: minimumHeight
 
+    onAccepted: manager.jobPrefix = prefixField.text
+
     property variant catalog: UM.I18nCatalog { name: "cura" }
 
     Column
@@ -74,10 +76,7 @@ UM.Dialog
         Button
         {
             text: catalog.i18nc("@action:button", "OK")
-            onClicked: {
-            	manager.jobPrefix = prefixField.text
-            	base.accept()
-            }
+            onClicked: base.accept()
             isDefault: true
         }
     ]
