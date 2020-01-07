@@ -24,6 +24,21 @@ UM.Dialog
 
     property variant catalog: UM.I18nCatalog { name: "cura" }
 
+    function boolCheck(value) //Hack to ensure a good match between python and qml.
+    {
+        if(value == "True")
+        {
+            return true
+        }else if(value == "False" || value == undefined)
+        {
+            return false
+        }
+        else
+        {
+            return value
+        }
+    }
+
     Column
     {
         anchors.fill: parent
@@ -50,6 +65,7 @@ UM.Dialog
             validator: RegExpValidator {
                 regExp: /^[^\\\/\*\?\|\[\]]*$/
             }
+            enabled: prefixJobNameCheckbox.checked
         }
 
         Label
@@ -63,6 +79,21 @@ UM.Dialog
             text: "{printer_name}, {printer_type}, {layer_height}, {machine_nozzle_size}, {infill_sparse_density}, {speed_print}, {material_type}, {material_weight}, {print_time_hours}, {print_time_minutes}, {date_year}, {date_month}, {date_day}, {time_hour}, {time_minutes}"
             width: parent.width
             wrapMode: Text.WordWrap
+        }
+
+        UM.TooltipArea
+        {
+            width: childrenRect.width
+            height: childrenRect.height
+            text: catalog.i18nc("@info:tooltip", "Add a customisable prefix to the print job name automatically?")
+
+            CheckBox
+            {
+                id: prefixJobNameCheckbox
+                text: catalog.i18nc("@option:check", "Add prefix to job name")
+                checked: boolCheck(UM.Preferences.getValue("cura/jobname_prefix"))
+                onCheckedChanged: UM.Preferences.setValue("cura/jobname_prefix", checked)
+            }
         }
     }
 
