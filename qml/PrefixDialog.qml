@@ -1,4 +1,4 @@
-// Copyright (c) 2020 fieldOfView
+// Copyright (c) 2020 Aldo Hoeben / fieldOfView
 // CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
 import QtQuick 2.1
@@ -8,6 +8,7 @@ import QtQuick.Window 2.1
 
 import UM 1.3 as UM
 import Cura 1.0 as Cura
+
 
 UM.Dialog
 {
