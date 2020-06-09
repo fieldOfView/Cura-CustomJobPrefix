@@ -14,14 +14,17 @@ UM.Dialog
 {
     id: base
 
-    title: catalog.i18nc("@title:window", "Custom Printjob Prefix")
+    title: catalog.i18nc("@title:window", "Custom Printjob name")
 
     minimumWidth: 400 * screenScaleFactor
-    minimumHeight: 220 * screenScaleFactor
+    minimumHeight: 250 * screenScaleFactor
     width: minimumWidth
     height: minimumHeight
 
-    onAccepted: manager.jobPrefix = prefixField.text
+    onAccepted:
+    {
+        manager.setJobAffixes(prefixField.text, postfixField.text);
+    }
 
     property variant catalog: UM.I18nCatalog { name: "cura" }
 
@@ -51,22 +54,50 @@ UM.Dialog
             {
                 var printer_name = Cura.MachineManager.activeMachineName;
                 if (printer_name === undefined) printer_name = Cura.MachineManager.activeMachine.name;
-                return catalog.i18nc("@info", "Enter the prefix to use for printer %0.").arg(printer_name);
+                return catalog.i18nc("@info", "Enter prefix and postfix to use for printer %0.").arg(printer_name);
             }
             width: parent.width
             wrapMode: Text.WordWrap
         }
 
-        TextField
+        Grid
         {
-            id: prefixField
-            width: parent.width
-            text: manager.jobPrefix
-            maximumLength: 255
-            validator: RegExpValidator {
-                regExp: /^[^\\\/\*\?\|\[\]]*$/
+            columns: 2;
+            flow: Grid.TopToBottom;
+            columnSpacing: Math.round(UM.Theme.getSize("default_margin").width / 2);
+            verticalItemAlignment: Grid.AlignVCenter
+
+            Label
+            {
+                text: catalog.i18nc("@label", "Prefix:")
             }
-            enabled: prefixJobNameCheckbox.checked
+            Label
+            {
+                text: catalog.i18nc("@label", "Postfix:")
+            }
+            TextField
+            {
+                id: prefixField
+                text: manager.jobPrefix
+                width: Math.floor(base.width * 0.8)
+                maximumLength: 255
+                validator: RegExpValidator {
+                    regExp: /^[^\\\/\*\?\|\[\]]*$/
+                }
+                enabled: prefixJobNameCheckbox.checked
+            }
+
+            TextField
+            {
+                id: postfixField
+                text: manager.jobPostfix
+                width: Math.floor(base.width * 0.8)
+                maximumLength: 255
+                validator: RegExpValidator {
+                    regExp: /^[^\\\/\*\?\|\[\]]*$/
+                }
+                enabled: prefixJobNameCheckbox.checked
+            }
         }
 
         Label
@@ -90,12 +121,12 @@ UM.Dialog
         {
             width: childrenRect.width
             height: childrenRect.height
-            text: catalog.i18nc("@info:tooltip", "Add a customisable prefix to the print job name automatically?")
+            text: catalog.i18nc("@info:tooltip", "Append a customisable prefix and postfix to the print job name automatically?")
 
             CheckBox
             {
                 id: prefixJobNameCheckbox
-                text: catalog.i18nc("@option:check", "Add prefix to job name")
+                text: catalog.i18nc("@option:check", "Enable prefix and postfix")
                 checked: boolCheck(UM.Preferences.getValue("cura/jobname_prefix"))
                 onCheckedChanged: UM.Preferences.setValue("cura/jobname_prefix", checked)
             }

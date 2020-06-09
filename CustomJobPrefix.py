@@ -7,7 +7,7 @@ from UM.Extension import Extension
 from UM.Logger import Logger
 from cura.CuraApplication import CuraApplication
 
-from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
 from . import PrintInformationPatches
 
@@ -22,8 +22,7 @@ class CustomJobPrefix(Extension, QObject,):
 
         self._application = CuraApplication.getInstance()
 
-        self.setMenuName(catalog.i18nc("@item:inmenu", "Custom Printjob Prefix"))
-        self.addMenuItem(catalog.i18nc("@item:inmenu", "Set prefix"), self.showNameDialog)
+        self.addMenuItem(catalog.i18nc("@item:inmenu", "Set name options"), self.showNameDialog)
 
         self._create_profile_window = None
         self._print_information_patches = None
@@ -48,7 +47,7 @@ class CustomJobPrefix(Extension, QObject,):
         self._additional_components.patchParent()
 
     def _onGlobalStackChanged(self) -> None:
-        self.jobPrefixChanged.emit()
+        self.jobAffixesChanged.emit()
 
     def showNameDialog(self) -> None:
         global_container_stack = self._application.getGlobalContainerStack()
@@ -59,23 +58,33 @@ class CustomJobPrefix(Extension, QObject,):
         self._create_profile_window = self._application.createQmlComponent(path, {"manager": self})
         self._create_profile_window.show()
 
-    jobPrefixChanged = pyqtSignal()
+    jobAffixesChanged = pyqtSignal()
 
-    def setJobPrefix(self, prefix: str) -> None:
+    @pyqtSlot(str, str)
+    def setJobAffixes(self, prefix: str, postfix: str) -> None:
         global_container_stack = self._application.getGlobalContainerStack()
         if not global_container_stack:
             return
 
         global_container_stack.setMetaDataEntry("custom_job_prefix", prefix)
-        self.jobPrefixChanged.emit()
+        global_container_stack.setMetaDataEntry("custom_job_postfix", postfix)
+        self.jobAffixesChanged.emit()
 
-    @pyqtProperty(str, fset=setJobPrefix, notify=jobPrefixChanged)
+    @pyqtProperty(str, notify=jobAffixesChanged)
     def jobPrefix(self) -> str:
         global_container_stack = self._application.getGlobalContainerStack()
         if not global_container_stack:
             return ""
 
         return global_container_stack.getMetaDataEntry("custom_job_prefix", "")
+
+    @pyqtProperty(str, notify=jobAffixesChanged)
+    def jobPostfix(self) -> str:
+        global_container_stack = self._application.getGlobalContainerStack()
+        if not global_container_stack:
+            return ""
+
+        return global_container_stack.getMetaDataEntry("custom_job_postfix", "")
 
     @pyqtProperty(QObject, constant=True)
     def printInformation(self) -> PrintInformationPatches:

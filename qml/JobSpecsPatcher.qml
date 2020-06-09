@@ -77,7 +77,7 @@ Item
             Label
             {
                 id: prefixLabel
-                text: customJobPrefix.printInformation.formattedPrefix + "_"
+                text: customJobPrefix.printInformation.formattedPrefix
                 color: UM.Theme.getColor("text_scene")
                 opacity: 0.7
                 font: UM.Theme.getFont("default")
@@ -90,7 +90,7 @@ Item
             {
                 id: modelNameTextfield
                 height: UM.Theme.getSize("jobspecs_line").height
-                width: Math.max(__contentWidth + UM.Theme.getSize("default_margin").width, 50)
+                width: __contentWidth + UM.Theme.getSize("default_margin").width
                 maximumLength: 120
                 text: (PrintInformation === null) ? "" : PrintInformation.jobName.slice(prefixLabel.text.length)
                 horizontalAlignment: TextInput.AlignLeft
@@ -128,6 +128,18 @@ Item
                         border.width: 0
                     }
                 }
+            }
+
+            Label
+            {
+                id: postfixLabel
+                text: customJobPrefix.printInformation.formattedPostfix
+                color: UM.Theme.getColor("text_scene")
+                opacity: 0.7
+                font: UM.Theme.getFont("default")
+                height: UM.Theme.getSize("jobspecs_line").height
+                verticalAlignment: Text.AlignVCenter
+                renderType: Text.NativeRendering
             }
         }
     }

@@ -30,6 +30,7 @@ class PrintInformationPatches(QObject):
         self._application = self._print_information._application
 
         self._formatted_prefix = ""
+        self._formatted_postfix = ""
 
         self._global_stack = None # type: Optional[GlobalStack]
         CuraApplication.getInstance().getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
@@ -76,14 +77,18 @@ class PrintInformationPatches(QObject):
             return ""
 
         job_prefix = self._global_stack.getMetaDataEntry("custom_job_prefix", "")
+        job_postfix = self._global_stack.getMetaDataEntry("custom_job_postfix", "")
+
         if not job_prefix:
             # Use the default abbreviation of the active machine name
             active_machine_type_name = self._global_stack.definition.getName()
             job_prefix = self._abbreviate_name(active_machine_type_name)
+            job_postfix = ""
 
-            if job_prefix != self._formatted_prefix:
+            if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
                 self._formatted_prefix = job_prefix
-                self.jobPrefixChanged.emit()
+                self._formatted_postfix = job_postfix
+                self.jobAffixesChanged.emit()
 
             return job_prefix
         else:
@@ -106,10 +111,12 @@ class PrintInformationPatches(QObject):
             }
             for pattern, replacement in replacements.items():
                 job_prefix = job_prefix.replace(pattern, replacement)
+                job_postfix = job_postfix.replace(pattern, replacement)
 
-            if job_prefix != self._formatted_prefix:
+            if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
                 self._formatted_prefix = job_prefix
-                self.jobPrefixChanged.emit()
+                self._formatted_postfix = job_postfix
+                self.jobAffixesChanged.emit()
 
             return job_prefix
 
@@ -133,7 +140,15 @@ class PrintInformationPatches(QObject):
 
         return abbr_name
 
-    jobPrefixChanged = pyqtSignal()
-    @pyqtProperty(str, notify=jobPrefixChanged)
+    jobAffixesChanged = pyqtSignal()
+    @pyqtProperty(str, notify=jobAffixesChanged)
     def formattedPrefix(self) -> str:
-        return self._formatted_prefix
+        if(self._formatted_prefix == ""):
+            return ""
+        return self._formatted_prefix + "_"
+
+    @pyqtProperty(str, notify=jobAffixesChanged)
+    def formattedPostfix(self) -> str:
+        if(self._formatted_postfix == ""):
+            return ""
+        return "_" + self._formatted_postfix
