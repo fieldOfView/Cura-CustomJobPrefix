@@ -75,11 +75,15 @@ UM.Dialog
             width: parent.width
             wrapMode: Text.WordWrap
         }
-        Label
+
+        TextEdit
         {
             text: "{printer_name}, {printer_type}, {layer_height}, {machine_nozzle_size}, {infill_sparse_density}, {speed_print}, {material_type}, {material_weight}, {print_time_hours}, {print_time_minutes}, {date_year}, {date_month}, {date_day}, {time_hour}, {time_minutes}"
             width: parent.width
+            renderType: Text.NativeRendering
+            readOnly: true
             wrapMode: Text.WordWrap
+            selectByMouse: true
         }
 
         UM.TooltipArea
