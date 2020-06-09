@@ -4,7 +4,7 @@
 from cura.CuraApplication import CuraApplication
 import re
 
-from PyQt5.QtCore import Qt, QDate, QTime
+from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal
 
 from typing import Any, Optional, TYPE_CHECKING
 
@@ -14,8 +14,10 @@ if TYPE_CHECKING:
 from UM.i18n import i18nCatalog
 catalog = i18nCatalog("cura")
 
-class PrintInformationPatches():
-    def __init__(self, print_information) -> None:
+class PrintInformationPatches(QObject):
+    def __init__(self, print_information, parent: QObject = None) -> None:
+        super().__init__(parent)
+
         self._print_information = print_information
         if hasattr(self._print_information, "_defineAbbreviatedMachineName"):
             self._print_information._defineAbbreviatedMachineName = self._defineAbbreviatedMachineName
@@ -26,6 +28,8 @@ class PrintInformationPatches():
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
 
         self._application = self._print_information._application
+
+        self._formatted_prefix = ""
 
         self._global_stack = None # type: Optional[GlobalStack]
         CuraApplication.getInstance().getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
@@ -75,7 +79,13 @@ class PrintInformationPatches():
         if not job_prefix:
             # Use the default abbreviation of the active machine name
             active_machine_type_name = self._global_stack.definition.getName()
-            return self._abbreviate_name(active_machine_type_name)
+            job_prefix = self._abbreviate_name(active_machine_type_name)
+
+            if job_prefix != self._formatted_prefix:
+                self._formatted_prefix = job_prefix
+                self.jobPrefixChanged.emit()
+
+            return job_prefix
         else:
             replacements = {
                 "{printer_name}": self._abbreviate_name(self._global_stack.getName()),
@@ -96,6 +106,11 @@ class PrintInformationPatches():
             }
             for pattern, replacement in replacements.items():
                 job_prefix = job_prefix.replace(pattern, replacement)
+
+            if job_prefix != self._formatted_prefix:
+                self._formatted_prefix = job_prefix
+                self.jobPrefixChanged.emit()
+
             return job_prefix
 
     def _abbreviate_number(self, number: float) -> str:
@@ -117,3 +132,8 @@ class PrintInformationPatches():
                 abbr_name += stripped_word
 
         return abbr_name
+
+    jobPrefixChanged = pyqtSignal()
+    @pyqtProperty(str, notify=jobPrefixChanged)
+    def formattedPrefix(self) -> str:
+        return self._formatted_prefix

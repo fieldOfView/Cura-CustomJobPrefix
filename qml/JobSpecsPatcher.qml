@@ -39,7 +39,7 @@ Item
 
         Row
         {
-            spacing: UM.Theme.getSize("narrow_margin").width
+            spacing: -3 * screenScaleFactor
 
             Button
             {
@@ -71,13 +71,28 @@ Item
                 }
             }
 
+            // spacer
+            Item { width: UM.Theme.getSize("narrow_margin").width + 3 * screenScaleFactor; height: 1 }
+
+            Label
+            {
+                id: prefixLabel
+                text: customJobPrefix.printInformation.formattedPrefix + "_"
+                color: UM.Theme.getColor("text_scene")
+                opacity: 0.7
+                font: UM.Theme.getFont("default")
+                height: UM.Theme.getSize("jobspecs_line").height
+                verticalAlignment: Text.AlignVCenter
+                renderType: Text.NativeRendering
+            }
+
             TextField
             {
                 id: modelNameTextfield
                 height: UM.Theme.getSize("jobspecs_line").height
                 width: Math.max(__contentWidth + UM.Theme.getSize("default_margin").width, 50)
                 maximumLength: 120
-                text: (PrintInformation === null) ? "" : PrintInformation.jobName
+                text: (PrintInformation === null) ? "" : PrintInformation.jobName.slice(prefixLabel.text.length)
                 horizontalAlignment: TextInput.AlignLeft
 
                 property string textBeforeEdit: ""
@@ -94,7 +109,7 @@ Item
                 {
                     if (text != textBeforeEdit) {
                         var new_name = text == "" ? catalog.i18nc("@text Print job name", "Untitled") : text
-                        PrintInformation.setJobName(new_name, true)
+                        PrintInformation.setJobName(prefixLabel.text + new_name, true)
                     }
                     modelNameTextfield.focus = false
                 }

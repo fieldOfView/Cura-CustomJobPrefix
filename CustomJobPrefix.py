@@ -76,3 +76,7 @@ class CustomJobPrefix(Extension, QObject,):
             return ""
 
         return global_container_stack.getMetaDataEntry("custom_job_prefix", "")
+
+    @pyqtProperty(QObject, constant=True)
+    def printInformation(self) -> PrintInformationPatches:
+        return self._print_information_patches
