@@ -19,15 +19,16 @@ class PrintInformationPatches(QObject):
         super().__init__(parent)
 
         self._print_information = print_information
-        if hasattr(self._print_information, "_defineAbbreviatedMachineName"):
-            self._print_information._defineAbbreviatedMachineName = self._defineAbbreviatedMachineName
-        else:
-            self._print_information._setAbbreviatedMachineName = self._defineAbbreviatedMachineName # 4.0 and before
+        self._application = self._print_information._application
+
+        self._application.globalContainerStackChanged.disconnect(self._print_information._updateJobName)
+        self._application.globalContainerStackChanged.connect(self._updateJobName)
+        self._print_information._updateJobName = self._updateJobName
+
         self._print_information.currentPrintTimeChanged.connect(self._triggerJobNameUpdate)
         self._print_information.materialWeightsChanged.connect(self._triggerJobNameUpdate)
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
 
-        self._application = self._print_information._application
 
         self._formatted_prefix = ""
         self._formatted_postfix = ""
@@ -56,15 +57,36 @@ class PrintInformationPatches(QObject):
             self._global_stack.metaDataChanged.connect(self._triggerJobNameUpdate)
 
     def _triggerJobNameUpdate(self, *args, **kwargs) -> None:
-        self._print_information._updateJobName()
+        self._updateJobName()
 
-    ##  Hijacked to create a full prefix instead of an acronymn-like abbreviated machine name from the active machine name
-    #   Called each time the global stack is switched, when settings change, when the global stack metadata changes and
-    #   when a slice is completed
-    def _defineAbbreviatedMachineName(self) -> None:
-        self._print_information._abbr_machine = self._getFormattedPrefix()
+    def _updateJobName(self) -> None:
+        if self._print_information._base_name == "":
+            self._print_information._job_name = self._print_information.UNTITLED_JOB_NAME
+            self._print_information._is_user_specified_job_name = False
+            self._print_information.jobNameChanged.emit()
+            return
 
-    def _getFormattedPrefix(self) -> str:
+        base_name = self._print_information._stripAccents(self._print_information._base_name)
+
+        if self._print_information._application.getInstance().getPreferences().getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
+            # Don't add abbreviation if it already has the exact same abbreviation.
+            self._getFormattedAffixes()
+            self._print_information._job_name = self._formatted_prefix + "_" + base_name + "_" + self._formatted_postfix
+        else:
+            self._print_information._job_name = base_name
+
+        # In case there are several buildplates, a suffix is attached
+        if self._print_information._multi_build_plate_model.maxBuildPlate > 0:
+            connector = "_#"
+            suffix = connector + str(self._print_information._active_build_plate + 1)
+            if connector in self._print_information._job_name:
+                self._print_information._job_name = self._print_information._job_name.split(connector)[0] # get the real name
+            if self._print_information._active_build_plate != 0:
+                self._print_information._job_name += suffix
+
+        self._print_information.jobNameChanged.emit()
+
+    def _getFormattedAffixes(self) -> str:
         if not self._global_stack:
             return ""
 
@@ -152,3 +174,7 @@ class PrintInformationPatches(QObject):
         if(self._formatted_postfix == ""):
             return ""
         return "_" + self._formatted_postfix
+
+    @pyqtProperty(str, notify=jobAffixesChanged)
+    def baseName(self) -> str:
+        return self._print_information._base_name

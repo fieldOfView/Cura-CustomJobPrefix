@@ -92,7 +92,7 @@ Item
                 height: UM.Theme.getSize("jobspecs_line").height
                 width: __contentWidth + UM.Theme.getSize("default_margin").width
                 maximumLength: 120
-                text: (PrintInformation === null) ? "" : PrintInformation.jobName.slice(prefixLabel.text.length)
+                text: (PrintInformation === null) ? "" : customJobPrefix.printInformation.baseName
                 horizontalAlignment: TextInput.AlignLeft
 
                 property string textBeforeEdit: ""
