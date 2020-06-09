@@ -21,6 +21,10 @@ class PrintInformationPatches(QObject):
         self._print_information = print_information
         self._application = self._print_information._application
 
+        self._preferences = self._application.getPreferences()
+        self._preferences.addPreference("customjobprefix/add_separator", True)
+        self._preferences.preferenceChanged.connect(self._onPreferencesChanged)
+
         self._application.globalContainerStackChanged.disconnect(self._print_information._updateJobName)
         self._application.globalContainerStackChanged.connect(self._updateJobName)
         self._print_information._updateJobName = self._updateJobName
@@ -29,12 +33,11 @@ class PrintInformationPatches(QObject):
         self._print_information.materialWeightsChanged.connect(self._triggerJobNameUpdate)
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
 
-
         self._formatted_prefix = ""
         self._formatted_postfix = ""
 
         self._global_stack = None # type: Optional[GlobalStack]
-        CuraApplication.getInstance().getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
+        self._application.getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
         self._onMachineChanged()
 
     def _onJobNameChanged(self) -> None:
@@ -56,6 +59,11 @@ class PrintInformationPatches(QObject):
             self._global_stack.containersChanged.connect(self._triggerJobNameUpdate)
             self._global_stack.metaDataChanged.connect(self._triggerJobNameUpdate)
 
+    def _onPreferencesChanged(self, name: str) -> None:
+        if name in ["cura/jobname_prefix", "customjobprefix/add_separator"]:
+            self._updateJobName()
+            self.jobAffixesChanged.emit()
+
     def _triggerJobNameUpdate(self, *args, **kwargs) -> None:
         self._updateJobName()
 
@@ -68,10 +76,10 @@ class PrintInformationPatches(QObject):
 
         base_name = self._print_information._stripAccents(self._print_information._base_name)
 
-        if self._print_information._application.getInstance().getPreferences().getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
-            # Don't add abbreviation if it already has the exact same abbreviation.
+        if self._preferences.getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
             self._getFormattedAffixes()
-            self._print_information._job_name = self._formatted_prefix + "_" + base_name + "_" + self._formatted_postfix
+            separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
+            self._print_information._job_name = self._formatted_prefix + separator + base_name + separator + self._formatted_postfix
         else:
             self._print_information._job_name = base_name
 
@@ -165,15 +173,21 @@ class PrintInformationPatches(QObject):
     jobAffixesChanged = pyqtSignal()
     @pyqtProperty(str, notify=jobAffixesChanged)
     def formattedPrefix(self) -> str:
+        if not self._preferences.getValue("cura/jobname_prefix"):
+            return ""
+        separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
         if(self._formatted_prefix == ""):
             return ""
-        return self._formatted_prefix + "_"
+        return self._formatted_prefix + separator
 
     @pyqtProperty(str, notify=jobAffixesChanged)
     def formattedPostfix(self) -> str:
+        if not self._preferences.getValue("cura/jobname_prefix"):
+            return ""
+        separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
         if(self._formatted_postfix == ""):
             return ""
-        return "_" + self._formatted_postfix
+        return separator + self._formatted_postfix
 
     @pyqtProperty(str, notify=jobAffixesChanged)
     def baseName(self) -> str:

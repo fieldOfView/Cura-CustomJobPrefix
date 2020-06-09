@@ -16,8 +16,8 @@ UM.Dialog
 
     title: catalog.i18nc("@title:window", "Custom Printjob name")
 
-    minimumWidth: 400 * screenScaleFactor
-    minimumHeight: 250 * screenScaleFactor
+    minimumWidth: 450 * screenScaleFactor
+    minimumHeight: 290 * screenScaleFactor
     width: minimumWidth
     height: minimumHeight
 
@@ -56,6 +56,7 @@ UM.Dialog
                 if (printer_name === undefined) printer_name = Cura.MachineManager.activeMachine.name;
                 return catalog.i18nc("@info", "Enter prefix and postfix to use for printer %0.").arg(printer_name);
             }
+            font.bold: true
             width: parent.width
             wrapMode: Text.WordWrap
         }
@@ -117,18 +118,45 @@ UM.Dialog
             selectByMouse: true
         }
 
-        UM.TooltipArea
+        Label
         {
-            width: childrenRect.width
-            height: childrenRect.height
-            text: catalog.i18nc("@info:tooltip", "Append a customisable prefix and postfix to the print job name automatically?")
+            text: catalog.i18nc("@info", "Options for all printers")
+            font.bold: true
+            width: parent.width
+            wrapMode: Text.WordWrap
+        }
 
-            CheckBox
+        Column
+        {
+            UM.TooltipArea
             {
-                id: prefixJobNameCheckbox
-                text: catalog.i18nc("@option:check", "Enable prefix and postfix")
-                checked: boolCheck(UM.Preferences.getValue("cura/jobname_prefix"))
-                onCheckedChanged: UM.Preferences.setValue("cura/jobname_prefix", checked)
+                width: childrenRect.width
+                height: childrenRect.height
+                text: catalog.i18nc("@info:tooltip", "Append a customisable prefix and postfix to the print job name automatically?")
+
+                CheckBox
+                {
+                    id: prefixJobNameCheckbox
+                    text: catalog.i18nc("@option:check", "Enable prefix and postfix")
+                    checked: boolCheck(UM.Preferences.getValue("cura/jobname_prefix"))
+                    onCheckedChanged: UM.Preferences.setValue("cura/jobname_prefix", checked)
+                }
+            }
+
+            UM.TooltipArea
+            {
+                width: childrenRect.width
+                height: childrenRect.height
+                text: catalog.i18nc("@info:tooltip", "Separate the prefix, base name and postfix with an `_` character?")
+
+                CheckBox
+                {
+                    id: addSeparatorCheckbox
+                    text: catalog.i18nc("@option:check", "Add '_' between jobname parts")
+                    checked: boolCheck(UM.Preferences.getValue("customjobprefix/add_separator"))
+                    onCheckedChanged: UM.Preferences.setValue("customjobprefix/add_separator", checked)
+                    enabled: prefixJobNameCheckbox.checked
+                }
             }
         }
     }
