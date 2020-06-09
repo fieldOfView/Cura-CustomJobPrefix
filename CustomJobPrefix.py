@@ -49,6 +49,7 @@ class CustomJobPrefix(Extension, QObject,):
     def _onGlobalStackChanged(self) -> None:
         self.jobAffixesChanged.emit()
 
+    @pyqtSlot()
     def showNameDialog(self) -> None:
         global_container_stack = self._application.getGlobalContainerStack()
         if not global_container_stack:

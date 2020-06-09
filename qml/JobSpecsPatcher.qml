@@ -84,6 +84,13 @@ Item
                 height: UM.Theme.getSize("jobspecs_line").height
                 verticalAlignment: Text.AlignVCenter
                 renderType: Text.NativeRendering
+
+                MouseArea
+                {
+                    anchors.fill: parent
+                    onPressed: customJobPrefix.showNameDialog()
+                }
+
             }
 
             TextField
@@ -140,6 +147,12 @@ Item
                 height: UM.Theme.getSize("jobspecs_line").height
                 verticalAlignment: Text.AlignVCenter
                 renderType: Text.NativeRendering
+
+                MouseArea
+                {
+                    anchors.fill: parent
+                    onPressed: customJobPrefix.showNameDialog()
+                }
             }
         }
     }
