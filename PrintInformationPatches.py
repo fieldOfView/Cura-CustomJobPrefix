@@ -63,7 +63,10 @@ class PrintInformationPatches():
         extruder_stack = self._application.getExtruderManager().getActiveExtruderStacks()[0]
         if not extruder_stack:
             return ""
-        extruder_nr = extruder_stack.getProperty("extruder_nr", "value")
+        try:
+            extruder_nr = int(extruder_stack.getProperty("extruder_nr", "value"))
+        except ValueError:
+            return ""
 
         job_prefix = self._global_stack.getMetaDataEntry("custom_job_prefix", "")
         if not job_prefix:

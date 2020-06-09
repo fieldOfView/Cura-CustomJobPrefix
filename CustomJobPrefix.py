@@ -4,6 +4,7 @@
 import os.path
 
 from UM.Extension import Extension
+from UM.Logger import Logger
 from cura.CuraApplication import CuraApplication
 
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal
@@ -15,7 +16,7 @@ catalog = i18nCatalog("cura")
 
 
 class CustomJobPrefix(Extension, QObject,):
-    def __init__(self, parent = None):
+    def __init__(self, parent = None) -> None:
         QObject.__init__(self, parent)
         Extension.__init__(self)
 
@@ -32,6 +33,19 @@ class CustomJobPrefix(Extension, QObject,):
 
     def _onEngineCreated(self) -> None:
         self._print_information_patches = PrintInformationPatches.PrintInformationPatches(self._application.getPrintInformation())
+        self._createAdditionalComponentsView()
+
+    def _createAdditionalComponentsView(self) -> None:
+        Logger.log("d", "Creating additional ui components for CustomJobPrefix")
+
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "JobSpecsPatcher.qml")
+        self._additional_components = self._application.createQmlComponent(path, {"customJobPrefix": self})
+        if not self._additional_components:
+            Logger.log("w", "Could not create additional components for CustomJobPrefix")
+            return
+
+        self._application.addAdditionalComponent("jobSpecsButton", self._additional_components)
+        self._additional_components.patchParent()
 
     def _onGlobalStackChanged(self) -> None:
         self.jobPrefixChanged.emit()
@@ -41,7 +55,7 @@ class CustomJobPrefix(Extension, QObject,):
         if not global_container_stack:
             return
 
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PrefixDialog.qml")
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "PrefixDialog.qml")
         self._create_profile_window = self._application.createQmlComponent(path, {"manager": self})
         self._create_profile_window.show()
 
