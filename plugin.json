@@ -1,7 +1,7 @@
 {
     "name": "Custom Printjob Prefix",
     "author": "fieldOfView",
-    "version": "3.5.1",
+    "version": "3.5.2-DEV",
     "description": "Lets the user set a custom prefix for gcode files",
     "api": 5,
     "supported_sdk_versions": ["5.0.0", "6.0.0", "7.0.0"],
