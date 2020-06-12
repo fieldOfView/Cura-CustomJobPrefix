@@ -122,14 +122,27 @@ class PrintInformationPatches(QObject):
 
             return job_prefix
         else:
+            profile_name = self._global_stack.quality.getName()
+            if self._global_stack.qualityChanges.id != "empty_quality_changes":
+                profile_name = self._global_stack.qualityChanges.getName()
+            material_name = "%s %s" % (extruder_stack.material.getMetaDataEntry("brand"), extruder_stack.material.getName())
+
             replacements = {
                 "{printer_name}": self._abbreviate_name(self._global_stack.getName()),
+                "{printer_name_full}": self._global_stack.getName(),
                 "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
+                "{printer_type_full}": self._global_stack.definition.getName(),
                 "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
                 "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
                 "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
                 "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
+                "{material_flow}": self._abbreviate_number(extruder_stack.getProperty("material_flow", "value")),
+                "{profile_name}": self._abbreviate_name(profile_name),
+                "{profile_name_full}": profile_name,
+                "{material_name}": self._abbreviate_name(material_name),
+                "{material_name_full}": material_name,
                 "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
+                "{material_type_full}": extruder_stack.material.getMetaDataEntry("material"),
                 "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
                 "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
                 "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes),
