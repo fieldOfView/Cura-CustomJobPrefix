@@ -23,6 +23,7 @@ class PrintInformationPatches(QObject):
 
         self._preferences = self._application.getPreferences()
         self._preferences.addPreference("customjobprefix/add_separator", True)
+        self._preferences.addPreference("customjobprefix/sanitise_affixes", True)
         self._preferences.preferenceChanged.connect(self._onPreferencesChanged)
 
         self._application.globalContainerStackChanged.disconnect(self._print_information._updateJobName)
@@ -60,7 +61,7 @@ class PrintInformationPatches(QObject):
             self._global_stack.metaDataChanged.connect(self._triggerJobNameUpdate)
 
     def _onPreferencesChanged(self, name: str) -> None:
-        if name in ["cura/jobname_prefix", "customjobprefix/add_separator"]:
+        if name in ["cura/jobname_prefix", "customjobprefix/add_separator", "customjobprefix/sanitise_affixes"]:
             self._updateJobName()
             self.jobAffixesChanged.emit()
 
@@ -155,6 +156,10 @@ class PrintInformationPatches(QObject):
             for pattern, replacement in replacements.items():
                 job_prefix = job_prefix.replace(pattern, replacement)
                 job_postfix = job_postfix.replace(pattern, replacement)
+
+            if self._preferences.getValue("customjobprefix/sanitise_affixes"):
+                job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
+                job_postfix = self._print_information._stripAccents(job_postfix).replace(" ", "_")
 
             if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
                 self._formatted_prefix = job_prefix

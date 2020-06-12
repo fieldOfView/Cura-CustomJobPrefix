@@ -17,7 +17,7 @@ UM.Dialog
     title: catalog.i18nc("@title:window", "Custom Printjob name")
 
     minimumWidth: 450 * screenScaleFactor
-    minimumHeight: 290 * screenScaleFactor
+    minimumHeight: 320 * screenScaleFactor
     width: minimumWidth
     height: minimumHeight
 
@@ -156,6 +156,22 @@ UM.Dialog
                     text: catalog.i18nc("@option:check", "Add '_' between jobname parts")
                     checked: boolCheck(UM.Preferences.getValue("customjobprefix/add_separator"))
                     onCheckedChanged: UM.Preferences.setValue("customjobprefix/add_separator", checked)
+                    enabled: prefixJobNameCheckbox.checked
+                }
+            }
+
+            UM.TooltipArea
+            {
+                width: childrenRect.width
+                height: childrenRect.height
+                text: catalog.i18nc("@info:tooltip", "Remove accents and replace spaces with an `_` character?")
+
+                CheckBox
+                {
+                    id: stripAccentsAndSpaces
+                    text: catalog.i18nc("@option:check", "Sanitise jobname parts")
+                    checked: boolCheck(UM.Preferences.getValue("customjobprefix/sanitise_affixes"))
+                    onCheckedChanged: UM.Preferences.setValue("customjobprefix/sanitise_affixes", checked)
                     enabled: prefixJobNameCheckbox.checked
                 }
             }
