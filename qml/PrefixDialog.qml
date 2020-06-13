@@ -117,6 +117,23 @@ UM.Dialog
             readOnly: true
             wrapMode: Text.WordWrap
             selectByMouse: true
+            mouseSelectionMode: TextEdit.SelectWords
+            onSelectionStartChanged: updateSelection()
+            onSelectionEndChanged: updateSelection()
+
+            function updateSelection()
+            {
+                var start = selectionStart
+                var end = selectionEnd
+
+                if(start > 0 && text.substr(start - 1, 1) == "{")
+                    start--;
+                if(end < text.length && text.substr(end, 1) == "}")
+                    end++;
+
+                if(start != selectionStart || end != selectionEnd)
+                    select(start, end);
+            }
         }
 
         Label
