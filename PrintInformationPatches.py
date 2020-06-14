@@ -78,7 +78,7 @@ class PrintInformationPatches(QObject):
         base_name = self._print_information._stripAccents(self._print_information._base_name)
 
         if self._preferences.getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
-            self._getFormattedAffixes()
+            self._formatdAffixes()
             separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
             self._print_information._job_name = self._formatted_prefix + separator + base_name + separator + self._formatted_postfix
         else:
@@ -95,22 +95,24 @@ class PrintInformationPatches(QObject):
 
         self._print_information.jobNameChanged.emit()
 
-    def _getFormattedAffixes(self) -> str:
+    def _formatdAffixes(self) -> None:
+        self._formatted_prefix = ""
+        self._formatted_postfix = ""
         if not self._global_stack:
-            return ""
+            return
 
         extruder_stack = self._application.getExtruderManager().getActiveExtruderStacks()[0]
         if not extruder_stack:
-            return ""
+            return
         try:
             extruder_nr = int(extruder_stack.getProperty("extruder_nr", "value"))
         except ValueError:
-            return ""
+            return
 
         job_prefix = self._global_stack.getMetaDataEntry("custom_job_prefix", "")
         job_postfix = self._global_stack.getMetaDataEntry("custom_job_postfix", "")
 
-        if not job_prefix:
+        if not job_prefix and not job_postfix:
             # Use the default abbreviation of the active machine name
             active_machine_type_name = self._global_stack.definition.getName()
             job_prefix = self._abbreviate_name(active_machine_type_name)
@@ -121,52 +123,50 @@ class PrintInformationPatches(QObject):
                 self._formatted_postfix = job_postfix
                 self.jobAffixesChanged.emit()
 
-            return job_prefix
-        else:
-            profile_name = self._global_stack.quality.getName()
-            if self._global_stack.qualityChanges.id != "empty_quality_changes":
-                profile_name = self._global_stack.qualityChanges.getName()
-            material_name = "%s %s" % (extruder_stack.material.getMetaDataEntry("brand"), extruder_stack.material.getName())
+            return
 
-            replacements = {
-                "{printer_name}": self._abbreviate_name(self._global_stack.getName()),
-                "{printer_name_full}": self._global_stack.getName(),
-                "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
-                "{printer_type_full}": self._global_stack.definition.getName(),
-                "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
-                "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
-                "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
-                "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
-                "{material_flow}": self._abbreviate_number(extruder_stack.getProperty("material_flow", "value")),
-                "{profile_name}": self._abbreviate_name(profile_name),
-                "{profile_name_full}": profile_name,
-                "{material_name}": self._abbreviate_name(material_name),
-                "{material_name_full}": material_name,
-                "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
-                "{material_type_full}": extruder_stack.material.getMetaDataEntry("material"),
-                "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
-                "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
-                "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes),
-                "{date_year}": QDate.currentDate().toString("yy"),
-                "{date_month}": QDate.currentDate().toString("MM"),
-                "{date_day}": QDate.currentDate().toString("dd"),
-                "{time_hour}": QTime.currentTime().toString("HH"),
-                "{time_minutes}": QTime.currentTime().toString("mm")
-            }
-            for pattern, replacement in replacements.items():
-                job_prefix = job_prefix.replace(pattern, replacement)
-                job_postfix = job_postfix.replace(pattern, replacement)
+        profile_name = self._global_stack.quality.getName()
+        if self._global_stack.qualityChanges.id != "empty_quality_changes":
+            profile_name = self._global_stack.qualityChanges.getName()
+        material_name = "%s %s" % (extruder_stack.material.getMetaDataEntry("brand"), extruder_stack.material.getName())
 
-            if self._preferences.getValue("customjobprefix/sanitise_affixes"):
-                job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
-                job_postfix = self._print_information._stripAccents(job_postfix).replace(" ", "_")
+        replacements = {
+            "{printer_name}": self._abbreviate_name(self._global_stack.getName()),
+            "{printer_name_full}": self._global_stack.getName(),
+            "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
+            "{printer_type_full}": self._global_stack.definition.getName(),
+            "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
+            "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
+            "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
+            "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
+            "{material_flow}": self._abbreviate_number(extruder_stack.getProperty("material_flow", "value")),
+            "{profile_name}": self._abbreviate_name(profile_name),
+            "{profile_name_full}": profile_name,
+            "{material_name}": self._abbreviate_name(material_name),
+            "{material_name_full}": material_name,
+            "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
+            "{material_type_full}": extruder_stack.material.getMetaDataEntry("material"),
+            "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
+            "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
+            "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes),
+            "{date_year}": QDate.currentDate().toString("yy"),
+            "{date_month}": QDate.currentDate().toString("MM"),
+            "{date_day}": QDate.currentDate().toString("dd"),
+            "{time_hour}": QTime.currentTime().toString("HH"),
+            "{time_minutes}": QTime.currentTime().toString("mm")
+        }
+        for pattern, replacement in replacements.items():
+            job_prefix = job_prefix.replace(pattern, replacement)
+            job_postfix = job_postfix.replace(pattern, replacement)
 
-            if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
-                self._formatted_prefix = job_prefix
-                self._formatted_postfix = job_postfix
-                self.jobAffixesChanged.emit()
+        if self._preferences.getValue("customjobprefix/sanitise_affixes"):
+            job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
+            job_postfix = self._print_information._stripAccents(job_postfix).replace(" ", "_")
 
-            return job_prefix
+        if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
+            self._formatted_prefix = job_prefix
+            self._formatted_postfix = job_postfix
+            self.jobAffixesChanged.emit()
 
     def _abbreviate_number(self, number: float) -> str:
         return str(number).replace(".", "")
