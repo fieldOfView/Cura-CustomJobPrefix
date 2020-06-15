@@ -163,10 +163,11 @@ class PrintInformationPatches(QObject):
             "{time_hour}": QTime.currentTime().toString("HH"),
             "{time_minutes}": QTime.currentTime().toString("mm")
         }
-        for pattern, replacement in replacements.items():
-            job_prefix = job_prefix.replace(pattern, replacement)
-            job_postfix = job_postfix.replace(pattern, replacement)
-            job_path = job_path.replace(pattern, replacement)
+        replacements = dict((re.escape(k), v) for k, v in replacements.items()) # escape for re
+        pattern = re.compile("|".join(replacements.keys()))
+        job_prefix = pattern.sub(lambda m: replacements[re.escape(m.group(0))], job_prefix)
+        job_postfix = pattern.sub(lambda m: replacements[re.escape(m.group(0))], job_postfix)
+        job_path = pattern.sub(lambda m: replacements[re.escape(m.group(0))], job_path)
 
         if self._preferences.getValue("customjobprefix/sanitise_affixes"):
             job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
