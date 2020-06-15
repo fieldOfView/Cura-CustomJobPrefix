@@ -17,7 +17,7 @@ UM.Dialog
     title: catalog.i18nc("@title:window", "Custom Printjob name")
 
     minimumWidth: 450 * screenScaleFactor
-    minimumHeight: 320 * screenScaleFactor
+    minimumHeight: 350 * screenScaleFactor
     width: minimumWidth
     height: minimumHeight
 
@@ -64,33 +64,13 @@ UM.Dialog
         Grid
         {
             columns: 2;
-            flow: Grid.TopToBottom;
-            columnSpacing: Math.round(UM.Theme.getSize("default_margin").width / 2);
+            columnSpacing: UM.Theme.getSize("default_margin").width
+            rowSpacing: UM.Theme.getSize("default_lining").height
             verticalItemAlignment: Grid.AlignVCenter
 
             Label
             {
-                text: catalog.i18nc("@label", "Path:")
-            }
-            Label
-            {
                 text: catalog.i18nc("@label", "Prefix:")
-            }
-            Label
-            {
-                text: catalog.i18nc("@label", "Postfix:")
-            }
-
-            TextField
-            {
-                id: pathField
-                text: manager.jobPath
-                width: Math.floor(base.width * 0.8)
-                maximumLength: 255
-                validator: RegExpValidator {
-                    regExp: /^[^\\\*\?\|\[\]]*$/
-                }
-                enabled: prefixJobNameCheckbox.checked
             }
 
             TextField
@@ -100,9 +80,14 @@ UM.Dialog
                 width: Math.floor(base.width * 0.8)
                 maximumLength: 255
                 validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]]*$/
+                    regExp: /^[^\\\/\*\?\|\[\]\:\&\"]*$/
                 }
                 enabled: prefixJobNameCheckbox.checked
+            }
+
+            Label
+            {
+                text: catalog.i18nc("@label", "Postfix:")
             }
 
             TextField
@@ -112,9 +97,34 @@ UM.Dialog
                 width: Math.floor(base.width * 0.8)
                 maximumLength: 255
                 validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]]*$/
+                    regExp: /^[^\\\/\*\?\|\[\]\:\&\"]*$/
                 }
                 enabled: prefixJobNameCheckbox.checked
+            }
+
+            Label
+            {
+                text: catalog.i18nc("@label", "Path:")
+            }
+
+            UM.TooltipArea
+            {
+                width: childrenRect.width;
+                height: childrenRect.height;
+
+                text: catalog.i18nc("@info:tooltip", "This path must be relative and will only be used with selected outputs, such as the removable drive output.")
+
+                TextField
+                {
+                    id: pathField
+                    text: manager.jobPath
+                    width: Math.floor(base.width * 0.8)
+                    maximumLength: 255
+                    validator: RegExpValidator {
+                    regExp: /^[^\/][^\\\*\?\|\[\]\:\&\"]*$/
+                    }
+                    enabled: prefixJobNameCheckbox.checked
+                }
             }
         }
 
