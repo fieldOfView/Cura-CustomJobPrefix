@@ -61,14 +61,15 @@ class CustomJobPrefix(Extension, QObject,):
 
     jobAffixesChanged = pyqtSignal()
 
-    @pyqtSlot(str, str)
-    def setJobAffixes(self, prefix: str, postfix: str) -> None:
+    @pyqtSlot(str, str, str)
+    def setJobAffixes(self, prefix: str, postfix: str, path: str) -> None:
         global_container_stack = self._application.getGlobalContainerStack()
         if not global_container_stack:
             return
 
         global_container_stack.setMetaDataEntry("custom_job_prefix", prefix)
         global_container_stack.setMetaDataEntry("custom_job_postfix", postfix)
+        global_container_stack.setMetaDataEntry("custom_job_path", path)
         self.jobAffixesChanged.emit()
 
     @pyqtProperty(str, notify=jobAffixesChanged)
@@ -86,6 +87,14 @@ class CustomJobPrefix(Extension, QObject,):
             return ""
 
         return global_container_stack.getMetaDataEntry("custom_job_postfix", "")
+
+    @pyqtProperty(str, notify=jobAffixesChanged)
+    def jobPath(self) -> str:
+        global_container_stack = self._application.getGlobalContainerStack()
+        if not global_container_stack:
+            return ""
+
+        return global_container_stack.getMetaDataEntry("custom_job_path", "")
 
     @pyqtProperty(QObject, constant=True)
     def printInformation(self) -> PrintInformationPatches:

@@ -3,6 +3,7 @@
 
 from cura.CuraApplication import CuraApplication
 import re
+import os.path
 
 from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal
 
@@ -34,6 +35,9 @@ class PrintInformationPatches(QObject):
         self._print_information.materialWeightsChanged.connect(self._triggerJobNameUpdate)
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
 
+        self._application.getOutputDeviceManager().activeDeviceChanged.connect(self._triggerJobNameUpdate)
+
+        self._formatted_path = ""
         self._formatted_prefix = ""
         self._formatted_postfix = ""
 
@@ -84,6 +88,9 @@ class PrintInformationPatches(QObject):
         else:
             self._print_information._job_name = base_name
 
+        # Add path
+        self._print_information._job_name = "%s/%s" % (self._formatted_path, self._print_information._job_name)
+
         # In case there are several buildplates, a suffix is attached
         if self._print_information._multi_build_plate_model.maxBuildPlate > 0:
             connector = "_#"
@@ -98,6 +105,8 @@ class PrintInformationPatches(QObject):
     def _formatdAffixes(self) -> None:
         self._formatted_prefix = ""
         self._formatted_postfix = ""
+        self._formatted_path = ""
+
         if not self._global_stack:
             return
 
@@ -109,18 +118,17 @@ class PrintInformationPatches(QObject):
         except ValueError:
             return
 
+        job_path = self._global_stack.getMetaDataEntry("custom_job_path", "")
         job_prefix = self._global_stack.getMetaDataEntry("custom_job_prefix", "")
         job_postfix = self._global_stack.getMetaDataEntry("custom_job_postfix", "")
 
-        if not job_prefix and not job_postfix:
+        if not job_prefix and not job_postfix and not job_path:
             # Use the default abbreviation of the active machine name
             active_machine_type_name = self._global_stack.definition.getName()
             job_prefix = self._abbreviate_name(active_machine_type_name)
-            job_postfix = ""
 
             if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
                 self._formatted_prefix = job_prefix
-                self._formatted_postfix = job_postfix
                 self.jobAffixesChanged.emit()
 
             return
@@ -158,14 +166,18 @@ class PrintInformationPatches(QObject):
         for pattern, replacement in replacements.items():
             job_prefix = job_prefix.replace(pattern, replacement)
             job_postfix = job_postfix.replace(pattern, replacement)
+            job_path = job_path.replace(pattern, replacement)
 
         if self._preferences.getValue("customjobprefix/sanitise_affixes"):
             job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
             job_postfix = self._print_information._stripAccents(job_postfix).replace(" ", "_")
 
-        if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
+            job_path = self._print_information._stripAccents(job_path).replace(" ", "_")
+
+        if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix or job_path != self._formatted_path:
             self._formatted_prefix = job_prefix
             self._formatted_postfix = job_postfix
+            self._formatted_path = job_path
             self.jobAffixesChanged.emit()
 
     def _abbreviate_number(self, number: float) -> str:
@@ -193,19 +205,28 @@ class PrintInformationPatches(QObject):
     def formattedPrefix(self) -> str:
         if not self._preferences.getValue("cura/jobname_prefix"):
             return ""
-        separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
-        if(self._formatted_prefix == ""):
+        if self._formatted_prefix == "":
             return ""
+        separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
         return self._formatted_prefix + separator
 
     @pyqtProperty(str, notify=jobAffixesChanged)
     def formattedPostfix(self) -> str:
         if not self._preferences.getValue("cura/jobname_prefix"):
             return ""
-        separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
-        if(self._formatted_postfix == ""):
+        if self._formatted_postfix == "":
             return ""
+        separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
         return separator + self._formatted_postfix
+
+    @pyqtProperty(str, notify=jobAffixesChanged)
+    def formattedPath(self) -> str:
+        if not self._preferences.getValue("cura/jobname_prefix"):
+            return ""
+
+        if self._formatted_postfix != "" or self._formatted_path.endswith(os.path.sep):
+            return self._formatted_path
+        return self._formatted_path + os.path.sep
 
     @pyqtProperty(str, notify=jobAffixesChanged)
     def baseName(self) -> str:

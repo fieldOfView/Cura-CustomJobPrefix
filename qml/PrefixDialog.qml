@@ -23,7 +23,7 @@ UM.Dialog
 
     onAccepted:
     {
-        manager.setJobAffixes(prefixField.text, postfixField.text);
+        manager.setJobAffixes(prefixField.text, postfixField.text, pathField.text);
     }
 
     property variant catalog: UM.I18nCatalog { name: "cura" }
@@ -70,12 +70,29 @@ UM.Dialog
 
             Label
             {
+                text: catalog.i18nc("@label", "Path:")
+            }
+            Label
+            {
                 text: catalog.i18nc("@label", "Prefix:")
             }
             Label
             {
                 text: catalog.i18nc("@label", "Postfix:")
             }
+
+            TextField
+            {
+                id: pathField
+                text: manager.jobPath
+                width: Math.floor(base.width * 0.8)
+                maximumLength: 255
+                validator: RegExpValidator {
+                    regExp: /^[^\\\*\?\|\[\]]*$/
+                }
+                enabled: prefixJobNameCheckbox.checked
+            }
+
             TextField
             {
                 id: prefixField
