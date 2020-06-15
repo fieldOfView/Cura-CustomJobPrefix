@@ -84,7 +84,7 @@ class PrintInformationPatches(QObject):
         if self._preferences.getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
             self._formatdAffixes()
             separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
-            self._print_information._job_name = self._formatted_prefix + separator + base_name + separator + self._formatted_postfix
+            self._print_information._job_name = self._formatted_prefix + (separator if self._formatted_prefix else "") + base_name + (separator if self._formatted_postfix else "") + self._formatted_postfix
         else:
             self._print_information._job_name = base_name
 
