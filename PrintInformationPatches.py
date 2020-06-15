@@ -41,6 +41,8 @@ class PrintInformationPatches(QObject):
         self._formatted_prefix = ""
         self._formatted_postfix = ""
 
+        self._path_enabled_output_devices = ["RemovableDriveOutputDevice", "OctoPrintOutputDevice"]
+
         self._global_stack = None # type: Optional[GlobalStack]
         self._application.getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
         self._onMachineChanged()
@@ -89,7 +91,8 @@ class PrintInformationPatches(QObject):
             self._print_information._job_name = base_name
 
         # Add path
-        self._print_information._job_name = "%s/%s" % (self._formatted_path, self._print_information._job_name)
+        if type(self._application.getOutputDeviceManager().getActiveDevice()).__name__ in self._path_enabled_output_devices:
+            self._print_information._job_name = "%s/%s" % (self._formatted_path, self._print_information._job_name)
 
         # In case there are several buildplates, a suffix is attached
         if self._print_information._multi_build_plate_model.maxBuildPlate > 0:
