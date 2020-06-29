@@ -82,6 +82,8 @@ class PrintInformationPatches(QObject):
             return
 
         base_name = self._print_information._stripAccents(self._print_information._base_name)
+        if self._preferences.getValue("customjobprefix/sanitise_affixes"):
+            base_name = re.sub(r"[; \?\*]", "_", base_name).strip("_")
 
         if self._preferences.getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
             self._formatdAffixes()

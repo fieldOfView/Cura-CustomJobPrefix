@@ -81,7 +81,7 @@ UM.Dialog
                 width: Math.floor(base.width * 0.8)
                 maximumLength: 255
                 validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]\:\&\"]*$/
+                    regExp: /^[^\\\/\*\?\|\[\]\;\:\~\&\"]*$/
                 }
                 enabled: prefixJobNameCheckbox.checked
             }
@@ -98,7 +98,7 @@ UM.Dialog
                 width: Math.floor(base.width * 0.8)
                 maximumLength: 255
                 validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]\:\&\"]*$/
+                    regExp: /^[^\\\/\*\?\|\[\]\;\:\~\&\"]*$/
                 }
                 enabled: prefixJobNameCheckbox.checked
             }
@@ -122,7 +122,7 @@ UM.Dialog
                     width: Math.floor(base.width * 0.8)
                     maximumLength: 255
                     validator: RegExpValidator {
-                    regExp: /^[^\/][^\\\*\?\|\[\]\:\&\"]*$/
+                    regExp: /^[^\/][^\\\*\?\|\[\]\;\:\,\.\~\&\"]*$/
                     }
                     enabled: prefixJobNameCheckbox.checked
                 }
