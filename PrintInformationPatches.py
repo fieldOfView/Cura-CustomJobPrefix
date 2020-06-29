@@ -41,7 +41,7 @@ class PrintInformationPatches(QObject):
         self._formatted_prefix = ""
         self._formatted_postfix = ""
 
-        self._path_enabled_output_devices = ["RemovableDriveOutputDevice", "OctoPrintOutputDevice"]
+        self._path_enabled_output_devices = ["RemovableDriveOutputDevice", "OctoPrintOutputDevice", "DuetRRFOutputDevice"]
 
         self._global_stack = None # type: Optional[GlobalStack]
         self._application.getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
