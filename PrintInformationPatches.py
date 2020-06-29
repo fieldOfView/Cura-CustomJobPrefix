@@ -2,6 +2,7 @@
 # CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
 from cura.CuraApplication import CuraApplication
+
 import re
 import os.path
 
@@ -162,9 +163,11 @@ class PrintInformationPatches(QObject):
             "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
             "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
             "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes),
+            "{date_iso}": QDate.currentDate().toString(format=Qt.ISODate),
             "{date_year}": QDate.currentDate().toString("yy"),
             "{date_month}": QDate.currentDate().toString("MM"),
             "{date_day}": QDate.currentDate().toString("dd"),
+            "{time_iso}": QTime.currentTime().toString(format=Qt.ISODate),
             "{time_hour}": QTime.currentTime().toString("HH"),
             "{time_minutes}": QTime.currentTime().toString("mm")
         }
