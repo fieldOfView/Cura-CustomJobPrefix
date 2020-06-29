@@ -10,6 +10,7 @@ from cura.CuraApplication import CuraApplication
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
 from . import PrintInformationPatches
+from . import OutputDevicePatcher
 
 from UM.i18n import i18nCatalog
 catalog = i18nCatalog("cura")
@@ -24,8 +25,9 @@ class CustomJobPrefix(Extension, QObject,):
 
         self.addMenuItem(catalog.i18nc("@item:inmenu", "Set name options"), self.showNameDialog)
 
-        self._create_profile_window = None
-        self._print_information_patches = None
+        self._create_profile_window = None  # type: Optional[QObject]
+        self._print_information_patches = None  # type: Optional[PrintInformationPatches.PrintInformationPatches]
+        self._output_device_patcher = OutputDevicePatcher.OutputDevicePatcher()
 
         self._application.engineCreatedSignal.connect(self._onEngineCreated)
         self._application.globalContainerStackChanged.connect(self._onGlobalStackChanged)
