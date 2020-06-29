@@ -178,7 +178,7 @@ class PrintInformationPatches(QObject):
             job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
             job_postfix = self._print_information._stripAccents(job_postfix).replace(" ", "_")
 
-            job_path = self._print_information._stripAccents(job_path).replace(" ", "_")
+            job_path = self._print_information._stripAccents(job_path).replace(" ", "_").strip("/")
 
         if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix or job_path != self._formatted_path:
             self._formatted_prefix = job_prefix
