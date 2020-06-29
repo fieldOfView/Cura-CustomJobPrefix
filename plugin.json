@@ -1,5 +1,5 @@
 {
-    "name": "Custom Printjob name",
+    "name": "Custom Printjob Naming",
     "author": "fieldOfView",
     "version": "3.5.2-DEV",
     "description": "Lets the user set a custom prefix and postfix for printjob files",

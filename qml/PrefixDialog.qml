@@ -14,7 +14,7 @@ UM.Dialog
 {
     id: base
 
-    title: catalog.i18nc("@title:window", "Custom Printjob name")
+    title: catalog.i18nc("@title:window", "Custom Printjob Naming")
 
     minimumWidth: 450 * screenScaleFactor
     minimumHeight: contents.implicitHeight + 3 * UM.Theme.getSize("default_margin").height
