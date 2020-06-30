@@ -122,7 +122,7 @@ Item
                 }
 
                 validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]]*$/
+                    regExp: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
                 }
 
                 style: TextFieldStyle
