@@ -94,7 +94,7 @@ class PrintInformationPatches(QObject):
             self._print_information._job_name = base_name
 
         # Add path
-        if type(self._application.getOutputDeviceManager().getActiveDevice()).__name__ in self._path_enabled_output_devices:
+        if self._formatted_path and type(self._application.getOutputDeviceManager().getActiveDevice()).__name__ in self._path_enabled_output_devices:
             self._print_information._job_name = "%s/%s" % (self._formatted_path, self._print_information._job_name)
 
         # In case there are several buildplates, a suffix is attached
