@@ -39,7 +39,18 @@ class CustomJobPrefix(Extension, QObject,):
     def _createAdditionalComponentsView(self) -> None:
         Logger.log("d", "Creating additional ui components for CustomJobPrefix")
 
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "JobSpecsPatcher.qml")
+        try:
+            major_api_version = self._application.getAPIVersion().getMajor()
+        except AttributeError:
+            # UM.Application.getAPIVersion was added for API > 6 (Cura 4)
+            # Since this plugin version is only compatible with Cura 3.5 and newer, it is safe to assume API 5
+            major_api_version = 5
+
+        if major_api_version <= 5:
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "JobSpecsPatcher3x.qml")
+        else:
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "JobSpecsPatcher4x.qml")
+
         self._additional_components = self._application.createQmlComponent(path, {"customJobPrefix": self})
         if not self._additional_components:
             Logger.log("w", "Could not create additional components for CustomJobPrefix")

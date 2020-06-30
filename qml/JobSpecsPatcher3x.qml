@@ -22,6 +22,7 @@ Item
     {
         var jobSpecs = parent.parent;
         var jobNameRow = jobSpecs.children[0];
+
         for(var index in jobNameRow.children)
         {
             jobNameRow.children[index].visible = false;
@@ -40,18 +41,19 @@ Item
         Row
         {
             spacing: -3 * screenScaleFactor
+            anchors.right: parent.right
 
             Button
             {
-                id: printJobPencilIcon
+                id: folderIcon
                 anchors.verticalCenter: parent.verticalCenter
                 width: UM.Theme.getSize("save_button_specs_icons").width
                 height: UM.Theme.getSize("save_button_specs_icons").height
+                visible: customJobPrefix.jobPath != ""
 
                 onClicked:
                 {
-                    modelNameTextfield.selectAll()
-                    modelNameTextfield.focus = true
+                    customJobPrefix.showNameDialog()
                 }
 
                 style: ButtonStyle
@@ -65,14 +67,14 @@ Item
                             sourceSize.width: width
                             sourceSize.height: width
                             color: control.hovered ? UM.Theme.getColor("small_button_text_hover") : UM.Theme.getColor("small_button_text")
-                            source: UM.Theme.getIcon("pencil")
+                            source: UM.Theme.getIcon("load")
                         }
                     }
                 }
             }
 
-            // spacer
-            Item { width: UM.Theme.getSize("narrow_margin").width + 3 * screenScaleFactor; height: 1 }
+            // conditional spacer
+            Item { width: UM.Theme.getSize("narrow_margin").width + 3 * screenScaleFactor; height: 1; visible: folderIcon.visible }
 
             Label
             {
@@ -152,6 +154,39 @@ Item
                 {
                     anchors.fill: parent
                     onPressed: customJobPrefix.showNameDialog()
+                }
+            }
+
+            // spacer
+            Item { width: UM.Theme.getSize("narrow_margin").width + 3 * screenScaleFactor; height: 1 }
+
+            Button
+            {
+                id: printJobPencilIcon
+                anchors.verticalCenter: parent.verticalCenter
+                width: UM.Theme.getSize("save_button_specs_icons").width
+                height: UM.Theme.getSize("save_button_specs_icons").height
+
+                onClicked:
+                {
+                    modelNameTextfield.selectAll()
+                    modelNameTextfield.focus = true
+                }
+
+                style: ButtonStyle
+                {
+                    background: Item
+                    {
+                        UM.RecolorImage
+                        {
+                            width: UM.Theme.getSize("save_button_specs_icons").width
+                            height: UM.Theme.getSize("save_button_specs_icons").height
+                            sourceSize.width: width
+                            sourceSize.height: width
+                            color: control.hovered ? UM.Theme.getColor("small_button_text_hover") : UM.Theme.getColor("small_button_text")
+                            source: UM.Theme.getIcon("pencil")
+                        }
+                    }
                 }
             }
         }

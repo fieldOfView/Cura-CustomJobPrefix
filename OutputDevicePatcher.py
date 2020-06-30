@@ -18,7 +18,7 @@ class OutputDevicePatcher():
         output_device_ids = set(self._application.getOutputDeviceManager().getOutputDeviceIds())
         for output_device_id in output_device_ids - self._output_device_ids:
             output_device = self._application.getOutputDeviceManager().getOutputDevice(output_device_id)
-            if "RemovableDriveOutputDevice" in str(output_device):
+            if type(output_device).__name__ == "RemovableDriveOutputDevice":
                 self._patched_output_devices[output_device.getId()] = PatchedOutputDevice(output_device)
 
         self._output_device_ids = output_device_ids
