@@ -17,6 +17,8 @@ from UM.i18n import i18nCatalog
 catalog = i18nCatalog("cura")
 
 class PrintInformationPatches(QObject):
+    UNTITLED_JOB_NAME = "Untitled"
+
     def __init__(self, print_information, parent: QObject = None) -> None:
         super().__init__(parent)
 
@@ -51,7 +53,7 @@ class PrintInformationPatches(QObject):
     def _onJobNameChanged(self) -> None:
         if self._print_information._is_user_specified_job_name:
             job_name = self._print_information._job_name
-            if job_name == catalog.i18nc("@text Print job name", "Untitled"):
+            if job_name == self.UNTITLED_JOB_NAME:
                 return
 
             self._print_information._is_user_specified_job_name = False
@@ -77,7 +79,7 @@ class PrintInformationPatches(QObject):
 
     def _updateJobName(self) -> None:
         if self._print_information._base_name == "":
-            self._print_information._job_name = self._print_information.UNTITLED_JOB_NAME
+            self._print_information._job_name = self.UNTITLED_JOB_NAME
             self._print_information._is_user_specified_job_name = False
             self._print_information.jobNameChanged.emit()
             return
