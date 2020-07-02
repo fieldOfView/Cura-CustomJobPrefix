@@ -28,6 +28,8 @@ class PrintInformationPatches(QObject):
         self._preferences = self._application.getPreferences()
         self._preferences.addPreference("customjobprefix/add_separator", True)
         self._preferences.addPreference("customjobprefix/sanitise_affixes", True)
+        if self._preferences.getValue("cura/jobname_prefix") == None:
+            self._preferences.addPreference("cura/jobname_prefix", True)  # restore preference that was removed in Cura 4.7
         self._preferences.preferenceChanged.connect(self._onPreferencesChanged)
 
         self._application.globalContainerStackChanged.disconnect(self._print_information._updateJobName)
