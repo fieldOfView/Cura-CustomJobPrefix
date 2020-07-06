@@ -80,7 +80,7 @@ Item
                 anchors.verticalCenter: parent.verticalCenter
                 width: UM.Theme.getSize("save_button_specs_icons").width
                 height: UM.Theme.getSize("save_button_specs_icons").height
-                visible: customJobPrefix.jobPath != ""
+                visible: customJobPrefix.jobPath != "" && customJobPrefix.printInformation.outputDeviceSupportsPath
 
                 onClicked:
                 {

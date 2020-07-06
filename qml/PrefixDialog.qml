@@ -27,6 +27,7 @@ UM.Dialog
     }
 
     property variant catalog: UM.I18nCatalog { name: "cura" }
+    property variant palette: SystemPalette {}
 
     function boolCheck(value) //Hack to ensure a good match between python and qml.
     {
@@ -108,23 +109,47 @@ UM.Dialog
                 text: catalog.i18nc("@label", "Path:")
             }
 
-            UM.TooltipArea
+            Row
             {
-                width: childrenRect.width;
-                height: childrenRect.height;
+                spacing: UM.Theme.getSize("narrow_margin").width
 
-                text: catalog.i18nc("@info:tooltip", "This path must be relative and will only be used with selected outputs, such as the removable drive output.")
-
-                TextField
+                UM.TooltipArea
                 {
-                    id: pathField
-                    text: manager.jobPath
-                    width: Math.floor(base.width * 0.8)
-                    maximumLength: 255
-                    validator: RegExpValidator {
-                        regExp: /^[^\/][^\\\*\?\|\[\]\;\~\&\"]*$/
+                    id: pathFieldContainer
+                    width: childrenRect.width;
+                    height: childrenRect.height;
+
+                    text: catalog.i18nc("@info:tooltip", "This path must be relative and will only be used with selected outputs, such as the removable drive output.")
+
+                    TextField
+                    {
+                        id: pathField
+                        text: manager.jobPath
+                        width: Math.floor(base.width * 0.8)
+                        maximumLength: 255
+                        validator: RegExpValidator {
+                            regExp: /^[^\/][^\\\*\?\|\[\]\;\~\&\"]*$/
+                        }
+                        enabled: prefixJobNameCheckbox.checked
                     }
-                    enabled: prefixJobNameCheckbox.checked
+                }
+                UM.TooltipArea
+                {
+                    width: childrenRect.width;
+                    height: childrenRect.height;
+                    anchors.verticalCenter: pathFieldContainer.verticalCenter
+                    visible: !manager.printInformation.outputDeviceSupportsPath
+
+                    text: catalog.i18nc("@info:tooltip", "The current output does not support paths.")
+
+                    UM.RecolorImage
+                    {
+                        width: Math.round(pathFieldContainer.height * 0.6) | 0
+                        height: width
+                        source: UM.Theme.getIcon("warning")
+
+                        color: palette.buttonText
+                    }
                 }
             }
         }

@@ -39,7 +39,7 @@ class PrintInformationPatches(QObject):
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
         self._application.workspaceLoaded.disconnect(self._print_information.setProjectName)
 
-        self._application.getOutputDeviceManager().activeDeviceChanged.connect(self._triggerJobNameUpdate)
+        self._application.getOutputDeviceManager().activeDeviceChanged.connect(self._onOutputDeviceChanged)
 
         self._formatted_path = ""
         self._formatted_prefix = ""
@@ -111,6 +111,10 @@ class PrintInformationPatches(QObject):
         if name in ["cura/jobname_prefix", "customjobprefix/add_separator", "customjobprefix/sanitise_affixes"]:
             self._updateJobName()
             self.jobAffixesChanged.emit()
+
+    def _onOutputDeviceChanged(self) -> None:
+        self._triggerJobNameUpdate()
+        self.outputDeviceChanged.emit()
 
     def _triggerJobNameUpdate(self, *args, **kwargs) -> None:
         self._updateJobName()
@@ -275,3 +279,8 @@ class PrintInformationPatches(QObject):
         self._print_information._base_name = base_name
         self._print_information.baseNameChanged.emit()
         self._updateJobName()
+
+    outputDeviceChanged = pyqtSignal()
+    @pyqtProperty(bool, notify=outputDeviceChanged)
+    def outputDeviceSupportsPath(self) -> bool:
+        return type(self._application.getOutputDeviceManager().getActiveDevice()).__name__ in self._path_enabled_output_devices
