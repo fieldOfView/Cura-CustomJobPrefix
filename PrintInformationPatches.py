@@ -76,6 +76,8 @@ class PrintInformationPatches(QObject):
         if "base_name" not in metadata or metadata["base_name"] != base_name:
             metadata_storage.setEntryToStore("CustomJobPrefix", "base_name", base_name)
 
+        self.jobAffixesChanged.emit()
+
     def _onWorkSpaceLoaded(self, workspace_name: str) -> None:
         self._ignore_base_name_change = True
         base_name = self._print_information._base_name
@@ -163,19 +165,8 @@ class PrintInformationPatches(QObject):
             return
 
         job_path = self._global_stack.getMetaDataEntry("custom_job_path", "")
-        job_prefix = self._global_stack.getMetaDataEntry("custom_job_prefix", "")
+        job_prefix = self._global_stack.getMetaDataEntry("custom_job_prefix", "{printer_type}")
         job_postfix = self._global_stack.getMetaDataEntry("custom_job_postfix", "")
-
-        if not job_prefix and not job_postfix and not job_path:
-            # Use the default abbreviation of the active machine name
-            active_machine_type_name = self._global_stack.definition.getName()
-            job_prefix = self._abbreviate_name(active_machine_type_name)
-
-            if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix:
-                self._formatted_prefix = job_prefix
-                self.jobAffixesChanged.emit()
-
-            return
 
         profile_name = self._global_stack.quality.getName()
         if self._global_stack.qualityChanges.id != "empty_quality_changes":

@@ -91,7 +91,7 @@ class CustomJobPrefix(Extension, QObject,):
         if not global_container_stack:
             return ""
 
-        return global_container_stack.getMetaDataEntry("custom_job_prefix", "")
+        return global_container_stack.getMetaDataEntry("custom_job_prefix", "{printer_type}")
 
     @pyqtProperty(str, notify=jobAffixesChanged)
     def jobPostfix(self) -> str:
