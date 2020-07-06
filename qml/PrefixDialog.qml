@@ -55,7 +55,7 @@ UM.Dialog
             {
                 var printer_name = Cura.MachineManager.activeMachineName;
                 if (printer_name === undefined) printer_name = Cura.MachineManager.activeMachine.name;
-                return catalog.i18nc("@info", "Enter prefix and postfix to use for printer %0.").arg(printer_name);
+                return catalog.i18nc("@info", "Enter name patterns to use for printer %0.").arg(printer_name);
             }
             font.bold: true
             width: parent.width
