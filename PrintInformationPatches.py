@@ -6,7 +6,7 @@ from cura.CuraApplication import CuraApplication
 import re
 import os.path
 
-from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
 from typing import Any, Optional, TYPE_CHECKING
 
@@ -17,13 +17,11 @@ from UM.i18n import i18nCatalog
 catalog = i18nCatalog("cura")
 
 class PrintInformationPatches(QObject):
-    UNTITLED_JOB_NAME = "Untitled"
-
     def __init__(self, print_information, parent: QObject = None) -> None:
         super().__init__(parent)
 
         self._print_information = print_information
-        self._application = self._print_information._application
+        self._application = CuraApplication.getInstance()
 
         self._preferences = self._application.getPreferences()
         self._preferences.addPreference("customjobprefix/add_separator", True)
@@ -39,6 +37,7 @@ class PrintInformationPatches(QObject):
         self._print_information.currentPrintTimeChanged.connect(self._triggerJobNameUpdate)
         self._print_information.materialWeightsChanged.connect(self._triggerJobNameUpdate)
         self._print_information.jobNameChanged.connect(self._onJobNameChanged)
+        self._application.workspaceLoaded.disconnect(self._print_information.setProjectName)
 
         self._application.getOutputDeviceManager().activeDeviceChanged.connect(self._triggerJobNameUpdate)
 
@@ -52,10 +51,45 @@ class PrintInformationPatches(QObject):
         self._application.getMachineManager().globalContainerChanged.connect(self._onMachineChanged)
         self._onMachineChanged()
 
+        # limit this to Cura 4.5 and newer
+        if hasattr(CuraApplication, "getWorkspaceMetadataStorage"):
+            self._ignore_base_name_change = False
+            self._last_base_name = ""
+            self._print_information.jobNameChanged.connect(self._onBaseNameChanged)  # baseNameChanged does not work
+            self._application.workspaceLoaded.connect(self._onWorkSpaceLoaded)
+
+
+    def _onBaseNameChanged(self) -> None:
+        if self._ignore_base_name_change:
+            self._ignore_base_name_change = False
+            return
+
+        base_name = self._print_information._base_name
+        if base_name == self._last_base_name:
+            return
+
+        self._last_base_name = base_name
+
+        metadata_storage = self._application.getWorkspaceMetadataStorage()
+        metadata = metadata_storage.getPluginMetadata("CustomJobPrefix")
+
+        if "base_name" not in metadata or metadata["base_name"] != base_name:
+            metadata_storage.setEntryToStore("CustomJobPrefix", "base_name", base_name)
+
+    def _onWorkSpaceLoaded(self, workspace_name: str) -> None:
+        self._ignore_base_name_change = True
+        base_name = self._print_information._base_name
+
+        metadata_storage = self._application.getWorkspaceMetadataStorage()
+        metadata = metadata_storage.getPluginMetadata("CustomJobPrefix")
+
+        if "base_name" in metadata and metadata["base_name"] != base_name:
+            self.setBaseName(metadata["base_name"])
+
     def _onJobNameChanged(self) -> None:
         if self._print_information._is_user_specified_job_name:
             job_name = self._print_information._job_name
-            if job_name == self.UNTITLED_JOB_NAME:
+            if job_name == catalog.i18nc("@text Print job name", "Untitled"):
                 return
 
             self._print_information._is_user_specified_job_name = False
@@ -81,7 +115,7 @@ class PrintInformationPatches(QObject):
 
     def _updateJobName(self) -> None:
         if self._print_information._base_name == "":
-            self._print_information._job_name = self.UNTITLED_JOB_NAME
+            self._print_information._job_name = catalog.i18nc("@text Print job name", "Untitled")
             self._print_information._is_user_specified_job_name = False
             self._print_information.jobNameChanged.emit()
             return
@@ -244,3 +278,9 @@ class PrintInformationPatches(QObject):
     @pyqtProperty(str, notify=jobAffixesChanged)
     def baseName(self) -> str:
         return self._print_information._base_name
+
+    @pyqtSlot(str)
+    def setBaseName(self, base_name) -> None:
+        self._print_information._base_name = base_name
+        self._print_information.baseNameChanged.emit()
+        self._updateJobName()

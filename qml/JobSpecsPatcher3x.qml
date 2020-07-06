@@ -118,7 +118,7 @@ Item
                 {
                     if (text != textBeforeEdit) {
                         var new_name = text == "" ? catalog.i18nc("@text Print job name", "Untitled") : text
-                        PrintInformation.setJobName(prefixLabel.text + new_name, true)
+                        customJobPrefix.printInformation.setBaseName(new_name)
                     }
                     modelNameTextfield.focus = false
                 }
