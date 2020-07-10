@@ -5,20 +5,23 @@ from cura.CuraApplication import CuraApplication
 
 from pathlib import Path
 
-from typing import Set, Optional
+from typing import Set, Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from UM.OutputDevice.OutputDevice import OutputDevice
 
 class OutputDevicePatcher():
     def __init__(self) -> None:
         self._application = CuraApplication.getInstance()
         self._application.getOutputDeviceManager().outputDevicesChanged.connect(self._onOutputDevicesChanged)
         self._output_device_ids = set()  # type: Set[OutputDevice]
-        self._patched_output_devices = {}  # type: Dict(str, PatchedOutputDevices)
+        self._patched_output_devices = {}  # type: Dict[str, PatchedOutputDevice]
 
     def _onOutputDevicesChanged(self) -> None:
         output_device_ids = set(self._application.getOutputDeviceManager().getOutputDeviceIds())
         for output_device_id in output_device_ids - self._output_device_ids:
             output_device = self._application.getOutputDeviceManager().getOutputDevice(output_device_id)
-            if type(output_device).__name__ == "RemovableDriveOutputDevice":
+            if output_device and type(output_device).__name__ == "RemovableDriveOutputDevice":
                 self._patched_output_devices[output_device.getId()] = PatchedOutputDevice(output_device)
 
         self._output_device_ids = output_device_ids

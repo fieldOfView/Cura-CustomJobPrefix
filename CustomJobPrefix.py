@@ -15,6 +15,7 @@ from . import OutputDevicePatcher
 from UM.i18n import i18nCatalog
 catalog = i18nCatalog("cura")
 
+from typing import Optional
 
 class CustomJobPrefix(Extension, QObject,):
     def __init__(self, parent = None) -> None:
@@ -25,7 +26,7 @@ class CustomJobPrefix(Extension, QObject,):
 
         self.addMenuItem(catalog.i18nc("@item:inmenu", "Set name options"), self.showNameDialog)
 
-        self._create_profile_window = None  # type: Optional[QObject]
+        self._prefix_dialog = None  # type: Optional[QObject]
         self._print_information_patches = None  # type: Optional[PrintInformationPatches.PrintInformationPatches]
         self._output_device_patcher = OutputDevicePatcher.OutputDevicePatcher()
 
@@ -69,8 +70,9 @@ class CustomJobPrefix(Extension, QObject,):
             return
 
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "PrefixDialog.qml")
-        self._create_profile_window = self._application.createQmlComponent(path, {"manager": self})
-        self._create_profile_window.show()
+        self._prefix_dialog = self._application.createQmlComponent(path, {"manager": self})
+        if self._prefix_dialog:
+            self._prefix_dialog.show()
 
     jobAffixesChanged = pyqtSignal()
 
@@ -110,5 +112,5 @@ class CustomJobPrefix(Extension, QObject,):
         return global_container_stack.getMetaDataEntry("custom_job_path", "")
 
     @pyqtProperty(QObject, constant=True)
-    def printInformation(self) -> PrintInformationPatches:
+    def printInformation(self) -> Optional[PrintInformationPatches.PrintInformationPatches]:
         return self._print_information_patches
