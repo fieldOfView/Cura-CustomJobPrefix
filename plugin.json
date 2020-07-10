@@ -1,7 +1,7 @@
 {
     "name": "Custom Printjob Naming",
     "author": "fieldOfView",
-    "version": "3.5.2-DEV",
+    "version": "3.5.3-DEV",
     "description": "Lets the user set a custom prefix and postfix for printjob files",
     "api": 5,
     "supported_sdk_versions": ["5.0.0", "6.0.0", "7.0.0"],
