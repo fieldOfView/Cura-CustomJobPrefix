@@ -182,6 +182,8 @@ class PrintInformationPatches(QObject):
             "{printer_name_full}": self._global_stack.getName(),
             "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
             "{printer_type_full}": self._global_stack.definition.getName(),
+            "{adhesion_type}": self._global_stack.getProperty("adhesion_type", "value"),
+            "{adhesion_type_full}": self._abbreviate_name(self._global_stack.getProperty("adhesion_type", "value")),
             "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
             "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
             "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
@@ -194,6 +196,10 @@ class PrintInformationPatches(QObject):
             "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
             "{material_type_full}": extruder_stack.material.getMetaDataEntry("material"),
             "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
+            "{material_print_temperature}": self._abbreviate_number(extruder_stack.getProperty("material_print_temperature", "value")),
+            "{material_bed_temperature}": self._abbreviate_number(extruder_stack.getProperty("material_bed_temperature", "value")),
+            "{retraction_min_travel}": self._abbreviate_number(extruder_stack.getProperty("retraction_min_travel", "value")),
+            "{cool_fan_speed}": self._abbreviate_number(extruder_stack.getProperty("cool_fan_speed", "value")),
             "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
             "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes),
             "{date_iso}": QDate.currentDate().toString(format=Qt.ISODate),
@@ -202,7 +208,8 @@ class PrintInformationPatches(QObject):
             "{date_day}": QDate.currentDate().toString("dd"),
             "{time_iso}": QTime.currentTime().toString(format=Qt.ISODate),
             "{time_hour}": QTime.currentTime().toString("HH"),
-            "{time_minutes}": QTime.currentTime().toString("mm")
+            "{time_minutes}": QTime.currentTime().toString("mm"),
+            "{time_seconds}": QTime.currentTime().toString("ss")
         }
         replacements = dict((re.escape(k), v) for k, v in replacements.items()) # escape for re
         pattern = re.compile("|".join(replacements.keys()))
