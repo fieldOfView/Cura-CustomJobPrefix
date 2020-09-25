@@ -25,6 +25,7 @@ class PrintInformationPatches(QObject):
 
         self._preferences = self._application.getPreferences()
         self._preferences.addPreference("customjobprefix/add_separator", True)
+        self._preferences.addPreference("customjobprefix/presliced_models", False)
         self._preferences.addPreference("customjobprefix/sanitise_affixes", True)
         if self._preferences.getValue("cura/jobname_prefix") == None:
             self._preferences.addPreference("cura/jobname_prefix", True)  # restore preference that was removed in Cura 4.7
@@ -108,7 +109,7 @@ class PrintInformationPatches(QObject):
             self._global_stack.metaDataChanged.connect(self._triggerJobNameUpdate)
 
     def _onPreferencesChanged(self, name: str) -> None:
-        if name in ["cura/jobname_prefix", "customjobprefix/add_separator", "customjobprefix/sanitise_affixes"]:
+        if name in ["cura/jobname_prefix", "customjobprefix/add_separator", "customjobprefix/sanitise_affixes", "customjobprefix/presliced_models"]:
             self._updateJobName()
             self.jobAffixesChanged.emit()
 
@@ -130,7 +131,7 @@ class PrintInformationPatches(QObject):
         if self._preferences.getValue("customjobprefix/sanitise_affixes"):
             base_name = re.sub(r"[; \?\*]", "_", base_name).strip("_")
 
-        if self._preferences.getValue("cura/jobname_prefix"):
+        if self._preferences.getValue("cura/jobname_prefix") and (not self._print_information._pre_sliced or self._preferences.getValue("customjobprefix/presliced_models")):
             self._formatdAffixes()
             separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
             self._print_information._job_name = self._formatted_prefix + (separator if self._formatted_prefix else "") + base_name + (separator if self._formatted_postfix else "") + self._formatted_postfix

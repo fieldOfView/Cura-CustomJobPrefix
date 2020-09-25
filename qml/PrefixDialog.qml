@@ -224,6 +224,22 @@ UM.Dialog
             {
                 width: childrenRect.width
                 height: childrenRect.height
+                text: catalog.i18nc("@info:tooltip", "Use path and prefix for pre-sliced models (gcode). The missing parameters will be substituted with '?'")
+
+                CheckBox
+                {
+                    id: preslicedModelsCheckbox
+                    text: catalog.i18nc("@option:check", "Enable for pre-sliced models")
+                    checked: boolCheck(UM.Preferences.getValue("customjobprefix/presliced_models"))
+                    onCheckedChanged: UM.Preferences.setValue("customjobprefix/presliced_models", checked)
+                    enabled: prefixJobNameCheckbox.checked
+                }
+            }
+
+            UM.TooltipArea
+            {
+                width: childrenRect.width
+                height: childrenRect.height
                 text: catalog.i18nc("@info:tooltip", "Separate the prefix, base name and postfix with an `_` character?")
 
                 CheckBox
