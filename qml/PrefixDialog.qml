@@ -169,7 +169,7 @@ UM.Dialog
                   "{material_type}, {material_type_full}, {material_weight}, {material_flow}, " +
                   "{material_print_temperature}, {material_bed_temperature}, {adhesion_type}, " +
                   "{adhesion_type_full}, {retraction_min_travel}, {cool_fan_speed}, " +
-                  "{print_time_hours}, {print_time_minutes}, {date_iso}, {date_year}, " +
+                  "{print_time_hours}, {print_time_minutes}, {slicer}, {date_iso}, {date_year}, " +
                   "{date_month}, {date_day}, {time_iso}, {time_hour}, {time_minutes}, {time_seconds}"
             width: parent.width
             renderType: Text.NativeRendering

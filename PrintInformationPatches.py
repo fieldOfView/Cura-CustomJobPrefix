@@ -130,7 +130,7 @@ class PrintInformationPatches(QObject):
         if self._preferences.getValue("customjobprefix/sanitise_affixes"):
             base_name = re.sub(r"[; \?\*]", "_", base_name).strip("_")
 
-        if self._preferences.getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
+        if self._preferences.getValue("cura/jobname_prefix"):
             self._formatdAffixes()
             separator = "_" if self._preferences.getValue("customjobprefix/add_separator") else ""
             self._print_information._job_name = self._formatted_prefix + (separator if self._formatted_prefix else "") + base_name + (separator if self._formatted_postfix else "") + self._formatted_postfix
@@ -177,31 +177,34 @@ class PrintInformationPatches(QObject):
             profile_name = self._global_stack.qualityChanges.getName()
         material_name = "%s %s" % (extruder_stack.material.getMetaDataEntry("brand"), extruder_stack.material.getName())
 
+        pre_sliced = "?" if self._print_information._pre_sliced else ""
+
         replacements = {
             "{printer_name}": self._abbreviate_name(self._global_stack.getName()),
             "{printer_name_full}": self._global_stack.getName(),
             "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
             "{printer_type_full}": self._global_stack.definition.getName(),
-            "{adhesion_type}": self._abbreviate_name(self._global_stack.getProperty("adhesion_type", "value")),
-            "{adhesion_type_full}": self._global_stack.getProperty("adhesion_type", "value"),
-            "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
-            "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
-            "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
-            "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
-            "{material_flow}": self._abbreviate_number(extruder_stack.getProperty("material_flow", "value")),
-            "{profile_name}": self._abbreviate_name(profile_name),
-            "{profile_name_full}": profile_name,
-            "{material_name}": self._abbreviate_name(material_name),
-            "{material_name_full}": material_name,
-            "{material_type}": self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
-            "{material_type_full}": extruder_stack.material.getMetaDataEntry("material"),
-            "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
-            "{material_print_temperature}": self._abbreviate_number(extruder_stack.getProperty("material_print_temperature", "value")),
-            "{material_bed_temperature}": self._abbreviate_number(extruder_stack.getProperty("material_bed_temperature", "value")),
-            "{retraction_min_travel}": self._abbreviate_number(extruder_stack.getProperty("retraction_min_travel", "value")),
-            "{cool_fan_speed}": self._abbreviate_number(extruder_stack.getProperty("cool_fan_speed", "value")),
-            "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
-            "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes),
+            "{adhesion_type}": pre_sliced or self._abbreviate_name(self._global_stack.getProperty("adhesion_type", "value")),
+            "{adhesion_type_full}": pre_sliced or self._global_stack.getProperty("adhesion_type", "value"),
+            "{layer_height}": pre_sliced or self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
+            "{machine_nozzle_size}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
+            "{infill_sparse_density}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
+            "{speed_print}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
+            "{material_flow}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("material_flow", "value")),
+            "{profile_name}": pre_sliced or self._abbreviate_name(profile_name),
+            "{profile_name_full}": pre_sliced or profile_name,
+            "{material_name}": pre_sliced or self._abbreviate_name(material_name),
+            "{material_name_full}": pre_sliced or material_name,
+            "{material_type}": pre_sliced or self._abbreviate_name(extruder_stack.material.getMetaDataEntry("material")),
+            "{material_type_full}": pre_sliced or extruder_stack.material.getMetaDataEntry("material"),
+            "{material_weight}": pre_sliced or str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
+            "{material_print_temperature}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("material_print_temperature", "value")),
+            "{material_bed_temperature}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("material_bed_temperature", "value")),
+            "{retraction_min_travel}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("retraction_min_travel", "value")),
+            "{cool_fan_speed}": pre_sliced or self._abbreviate_number(extruder_stack.getProperty("cool_fan_speed", "value")),
+            "{print_time_hours}": pre_sliced or str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
+            "{print_time_minutes}": pre_sliced or str(self._print_information.currentPrintTime.minutes),
+            "{slicer}": "presliced" if self._print_information._pre_sliced else "cura",
             "{date_iso}": QDate.currentDate().toString(format=Qt.ISODate),
             "{date_year}": QDate.currentDate().toString("yy"),
             "{date_month}": QDate.currentDate().toString("MM"),
@@ -211,6 +214,7 @@ class PrintInformationPatches(QObject):
             "{time_minutes}": QTime.currentTime().toString("mm"),
             "{time_seconds}": QTime.currentTime().toString("ss")
         }
+
         replacements = dict((re.escape(k), v) for k, v in replacements.items()) # escape for re
         pattern = re.compile("|".join(replacements.keys()))
         job_prefix = pattern.sub(lambda m: replacements[re.escape(m.group(0))], job_prefix)
