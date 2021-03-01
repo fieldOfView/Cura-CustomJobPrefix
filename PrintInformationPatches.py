@@ -121,15 +121,15 @@ class PrintInformationPatches(QObject):
         self._updateJobName()
 
     def _updateJobName(self) -> None:
-        if self._print_information._base_name == "":
+        base_name = self._stripAccents(self._print_information._base_name)
+        if self._preferences.getValue("customjobprefix/sanitise_affixes"):
+            base_name = re.sub(r"[; \?\*\:]", "_", base_name).strip("_")
+
+        if base_name == "":
             self._print_information._job_name = catalog.i18nc("@text Print job name", "Untitled")
             self._print_information._is_user_specified_job_name = False
             self._print_information.jobNameChanged.emit()
             return
-
-        base_name = self._stripAccents(self._print_information._base_name)
-        if self._preferences.getValue("customjobprefix/sanitise_affixes"):
-            base_name = re.sub(r"[; \?\*]", "_", base_name).strip("_")
 
         if self._preferences.getValue("cura/jobname_prefix") and not self._print_information._pre_sliced:
             self._formatdAffixes()
