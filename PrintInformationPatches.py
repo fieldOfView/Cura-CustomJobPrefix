@@ -5,6 +5,7 @@ from cura.CuraApplication import CuraApplication
 
 import re
 import os.path
+import unicodedata
 
 from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
@@ -126,7 +127,7 @@ class PrintInformationPatches(QObject):
             self._print_information.jobNameChanged.emit()
             return
 
-        base_name = self._print_information._stripAccents(self._print_information._base_name)
+        base_name = self._stripAccents(self._print_information._base_name)
         if self._preferences.getValue("customjobprefix/sanitise_affixes"):
             base_name = re.sub(r"[; \?\*]", "_", base_name).strip("_")
 
@@ -211,10 +212,10 @@ class PrintInformationPatches(QObject):
         job_path = pattern.sub(lambda m: replacements[re.escape(m.group(0))], job_path)
 
         if self._preferences.getValue("customjobprefix/sanitise_affixes"):
-            job_prefix = self._print_information._stripAccents(job_prefix).replace(" ", "_")
-            job_postfix = self._print_information._stripAccents(job_postfix).replace(" ", "_")
+            job_prefix = self._stripAccents(job_prefix).replace(" ", "_")
+            job_postfix = self._stripAccents(job_postfix).replace(" ", "_")
 
-            job_path = self._print_information._stripAccents(job_path).replace(" ", "_").strip("/")
+            job_path = self._stripAccents(job_path).replace(" ", "_").strip("/")
 
         if job_prefix != self._formatted_prefix or job_postfix != self._formatted_postfix or job_path != self._formatted_path:
             self._formatted_prefix = job_prefix
@@ -233,7 +234,7 @@ class PrintInformationPatches(QObject):
             elif word.isdigit():
                 abbr_name += word
             else:
-                stripped_word = self._print_information._stripAccents(word.upper())
+                stripped_word = self._stripAccents(word.upper())
                 # - use only the first character if the word is too long (> 4 characters)
                 # - use the whole word if it's not too long (<= 4 characters)
                 if len(stripped_word) > 4:
@@ -284,3 +285,8 @@ class PrintInformationPatches(QObject):
     @pyqtProperty(bool, notify=outputDeviceChanged)
     def outputDeviceSupportsPath(self) -> bool:
         return type(self._application.getOutputDeviceManager().getActiveDevice()).__name__ in self._path_enabled_output_devices
+
+    def _stripAccents(self, to_strip: str) -> str:
+        """Utility method that strips accents from characters (eg: â -> a)"""
+
+        return ''.join(char for char in unicodedata.normalize('NFD', to_strip) if unicodedata.category(char) != 'Mn')
