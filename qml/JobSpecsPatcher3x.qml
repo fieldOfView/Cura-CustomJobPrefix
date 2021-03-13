@@ -18,6 +18,8 @@ Item
         name: "cura"
     }
 
+    property bool preSlicedData: PrintInformation !== null && PrintInformation.preSliced
+
     function patchParent()
     {
         var jobSpecs = parent.parent;
@@ -80,6 +82,7 @@ Item
             {
                 id: prefixLabel
                 text: customJobPrefix.printInformation.formattedPrefix
+                visible: !preSlicedData
                 color: UM.Theme.getColor("text_scene")
                 opacity: 0.7
                 font: UM.Theme.getFont("default")
@@ -143,6 +146,7 @@ Item
             {
                 id: postfixLabel
                 text: customJobPrefix.printInformation.formattedPostfix
+                visible: !preSlicedData
                 color: UM.Theme.getColor("text_scene")
                 opacity: 0.7
                 font: UM.Theme.getFont("default")
