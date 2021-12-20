@@ -164,7 +164,8 @@ UM.Dialog
         TextEdit
         {
             text: "{printer_name}, {printer_name_full}, {printer_type}, {printer_type_full}, {layer_height}, {machine_nozzle_size}, {infill_sparse_density}, {speed_print}, {material_flow}, {profile_name}, {profile_name_full}, " +
-                  "{material_name}, {material_name_full}, {material_type}, {material_type_full}, {material_weight}, {print_time_hours}, {print_time_minutes}, {date_iso}, {date_year}, {date_month}, {date_day}, {time_iso}, {time_hour}, {time_minutes}"
+                  "{material_name}, {material_name_full}, {material_type}, {material_type_full}, {material_weight}, {print_time_hours}, {print_time_minutes}, {date_iso}, {date_year}, {date_month}, {date_day}, {time_iso}, {time_hour}, {time_minutes}, " +
+                  "{random}"
             width: parent.width
             renderType: Text.NativeRendering
             readOnly: true
@@ -245,6 +246,22 @@ UM.Dialog
                     enabled: prefixJobNameCheckbox.checked
                 }
             }
+
+            UM.TooltipArea
+            {
+                width: childrenRect.width
+                height: childrenRect.height
+                text: catalog.i18nc("@info:tooltip", "Place base (like without the plugin) name between prefix and suffix?")
+
+                CheckBox
+                {
+                    id: useBaseName
+                    text: catalog.i18nc("@option:check", "Use base name")
+                    checked: boolCheck(UM.Preferences.getValue("customjobprefix/use_base_name"))
+                    onCheckedChanged: UM.Preferences.setValue("customjobprefix/use_base_name", checked)
+                    enabled: prefixJobNameCheckbox.checked
+                }
+            }
         }
     }
 
@@ -263,4 +280,3 @@ UM.Dialog
         }
     ]
 }
-
