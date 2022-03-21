@@ -5,6 +5,7 @@ import os.path
 
 from UM.Extension import Extension
 from UM.Logger import Logger
+from UM.Version import Version
 from cura.CuraApplication import CuraApplication
 
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
@@ -23,6 +24,11 @@ class CustomJobPrefix(Extension, QObject,):
         Extension.__init__(self)
 
         self._application = CuraApplication.getInstance()
+
+        self._use_controls1 = False
+        if self._application.getAPIVersion() < Version(8) and self._application.getVersion() != "master":
+            self._use_controls1 = True
+        self._qml_folder = "qml" if not self._use_controls1 else "qml_controls1"
 
         self.addMenuItem(catalog.i18nc("@item:inmenu", "Set name options"), self.showNameDialog)
 
@@ -47,10 +53,12 @@ class CustomJobPrefix(Extension, QObject,):
             # Since this plugin version is only compatible with Cura 3.5 and newer, it is safe to assume API 5
             major_api_version = 5
 
-        if major_api_version <= 5:
-            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "JobSpecsPatcher3x.qml")
+        if not self._use_controls1:
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "JobSpecsPatcher.qml")
+        elif major_api_version <= 5:
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "JobSpecsPatcher3x.qml")
         else:
-            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "JobSpecsPatcher4x.qml")
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "JobSpecsPatcher4x.qml")
 
         self._additional_components = self._application.createQmlComponent(path, {"customJobPrefix": self})
         if not self._additional_components:
@@ -69,7 +77,7 @@ class CustomJobPrefix(Extension, QObject,):
         if not global_container_stack:
             return
 
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qml", "PrefixDialog.qml")
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "PrefixDialog.qml")
         self._prefix_dialog = self._application.createQmlComponent(path, {"manager": self})
         if self._prefix_dialog:
             self._prefix_dialog.show()

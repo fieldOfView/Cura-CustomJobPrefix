@@ -2,9 +2,11 @@
 // CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
 import QtQuick 2.1
-import QtQuick.Controls 2.0
+import QtQuick.Controls 1.1
+import QtQuick.Dialogs 1.2
+import QtQuick.Window 2.1
 
-import UM 1.5 as UM
+import UM 1.3 as UM
 import Cura 1.0 as Cura
 
 
@@ -14,7 +16,6 @@ UM.Dialog
 
     title: catalog.i18nc("@title:window", "Custom Printjob Naming")
 
-    buttonSpacing: UM.Theme.getSize("default_margin").width
     minimumWidth: 450 * screenScaleFactor
     minimumHeight: contents.childrenRect.height + 3 * UM.Theme.getSize("default_margin").height
     width: minimumWidth
@@ -49,7 +50,7 @@ UM.Dialog
         anchors.fill: parent
         spacing: UM.Theme.getSize("default_margin").height
 
-        UM.Label
+        Label
         {
             text:
             {
@@ -69,12 +70,12 @@ UM.Dialog
             rowSpacing: UM.Theme.getSize("default_lining").height
             verticalItemAlignment: Grid.AlignVCenter
 
-            UM.Label
+            Label
             {
                 text: catalog.i18nc("@label", "Prefix:")
             }
 
-            Cura.TextField
+            TextField
             {
                 id: prefixField
                 text: manager.jobPrefix
@@ -86,12 +87,12 @@ UM.Dialog
                 enabled: prefixJobNameCheckbox.checked
             }
 
-            UM.Label
+            Label
             {
                 text: catalog.i18nc("@label", "Postfix:")
             }
 
-            Cura.TextField
+            TextField
             {
                 id: postfixField
                 text: manager.jobPostfix
@@ -103,7 +104,7 @@ UM.Dialog
                 enabled: prefixJobNameCheckbox.checked
             }
 
-            UM.Label
+            Label
             {
                 text: catalog.i18nc("@label", "Path:")
             }
@@ -120,7 +121,7 @@ UM.Dialog
 
                     text: catalog.i18nc("@info:tooltip", "This path must be relative and will only be used with selected outputs, such as the removable drive output.")
 
-                    Cura.TextField
+                    TextField
                     {
                         id: pathField
                         text: manager.jobPath
@@ -153,7 +154,7 @@ UM.Dialog
             }
         }
 
-        UM.Label
+        Label
         {
             text: catalog.i18nc("@info", "Available replacement patterns:")
             width: parent.width
@@ -188,7 +189,7 @@ UM.Dialog
             }
         }
 
-        UM.Label
+        Label
         {
             text: catalog.i18nc("@info", "Options for all printers")
             font.bold: true
@@ -204,7 +205,7 @@ UM.Dialog
                 height: childrenRect.height
                 text: catalog.i18nc("@info:tooltip", "Append a customisable prefix and postfix to the print job name automatically?")
 
-                UM.CheckBox
+                CheckBox
                 {
                     id: prefixJobNameCheckbox
                     text: catalog.i18nc("@option:check", "Enable prefix and postfix")
@@ -219,7 +220,7 @@ UM.Dialog
                 height: childrenRect.height
                 text: catalog.i18nc("@info:tooltip", "Separate the prefix, base name and postfix with an `_` character?")
 
-                UM.CheckBox
+                CheckBox
                 {
                     id: addSeparatorCheckbox
                     text: catalog.i18nc("@option:check", "Add '_' between jobname parts")
@@ -235,7 +236,7 @@ UM.Dialog
                 height: childrenRect.height
                 text: catalog.i18nc("@info:tooltip", "Remove accents and replace spaces with an `_` character?")
 
-                UM.CheckBox
+                CheckBox
                 {
                     id: stripAccentsAndSpaces
                     text: catalog.i18nc("@option:check", "Sanitise jobname parts")
@@ -248,15 +249,17 @@ UM.Dialog
     }
 
     rightButtons: [
-        Cura.SecondaryButton
+        Button
         {
+            id: cancelButton
             text: catalog.i18nc("@action:button","Cancel")
             onClicked: base.reject()
         },
-        Cura.PrimaryButton
+        Button
         {
             text: catalog.i18nc("@action:button", "OK")
             onClicked: base.accept()
+            isDefault: true
         }
     ]
 }
