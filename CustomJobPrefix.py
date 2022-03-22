@@ -26,7 +26,11 @@ class CustomJobPrefix(Extension, QObject,):
         self._application = CuraApplication.getInstance()
 
         self._use_controls1 = False
-        if self._application.getAPIVersion() < Version(8) and self._application.getVersion() != "master":
+        try:
+            if self._application.getAPIVersion() < Version(8) and self._application.getVersion() != "master":
+                self._use_controls1 = True
+        except AttributeError:
+             # UM.Application.getAPIVersion was added for API > 6 (Cura 4)
             self._use_controls1 = True
         self._qml_folder = "qml" if not self._use_controls1 else "qml_controls1"
 
@@ -54,11 +58,12 @@ class CustomJobPrefix(Extension, QObject,):
             major_api_version = 5
 
         if not self._use_controls1:
-            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "JobSpecsPatcher.qml")
+            qml_file = "JobSpecsPatcher.qml"
         elif major_api_version <= 5:
-            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "JobSpecsPatcher3x.qml")
+            qml_file = "JobSpecsPatcher3x.qml"
         else:
-            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, "JobSpecsPatcher4x.qml")
+            qml_file = "JobSpecsPatcher4x.qml"
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._qml_folder, qml_file)
 
         self._additional_components = self._application.createQmlComponent(path, {"customJobPrefix": self})
         if not self._additional_components:
