@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Aldo Hoeben / fieldOfView
+# Copyright (c) 2022 Aldo Hoeben / fieldOfView
 # CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
 import os.path
@@ -8,7 +8,10 @@ from UM.Logger import Logger
 from UM.Version import Version
 from cura.CuraApplication import CuraApplication
 
-from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
+try:
+    from PyQt6.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
+except ImportError:
+    from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
 from . import PrintInformationPatches
 from . import OutputDevicePatcher

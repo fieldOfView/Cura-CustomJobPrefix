@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Aldo Hoeben / fieldOfView
+# Copyright (c) 2022 Aldo Hoeben / fieldOfView
 # CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
 from cura.CuraApplication import CuraApplication
@@ -7,7 +7,10 @@ import re
 import os.path
 import unicodedata
 
-from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
+try:
+    from PyQt6.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
+except ImportError:
+    from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
 from typing import Any, Optional, TYPE_CHECKING
 
