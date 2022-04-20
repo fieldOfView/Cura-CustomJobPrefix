@@ -8,10 +8,12 @@ from UM.Logger import Logger
 from UM.Version import Version
 from cura.CuraApplication import CuraApplication
 
+USE_QT5 = False
 try:
     from PyQt6.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 except ImportError:
     from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
+    USE_QT5 = True
 
 from . import PrintInformationPatches
 from . import OutputDevicePatcher
@@ -28,14 +30,7 @@ class CustomJobPrefix(Extension, QObject,):
 
         self._application = CuraApplication.getInstance()
 
-        self._use_controls1 = False
-        try:
-            if self._application.getAPIVersion() < Version(8) and self._application.getVersion() != "master":
-                self._use_controls1 = True
-        except AttributeError:
-             # UM.Application.getAPIVersion was added for API > 6 (Cura 4)
-            self._use_controls1 = True
-        self._qml_folder = "qml" if not self._use_controls1 else "qml_controls1"
+        self._qml_folder = "qml" if not USE_QT5 else "qml_qt5"
 
         self.addMenuItem(catalog.i18nc("@item:inmenu", "Set name options"), self.showNameDialog)
 
@@ -60,7 +55,7 @@ class CustomJobPrefix(Extension, QObject,):
             # Since this plugin version is only compatible with Cura 3.5 and newer, it is safe to assume API 5
             major_api_version = 5
 
-        if not self._use_controls1:
+        if not USE_QT5:
             qml_file = "JobSpecsPatcher.qml"
         elif major_api_version <= 5:
             qml_file = "JobSpecsPatcher3x.qml"
