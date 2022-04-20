@@ -181,6 +181,11 @@ class PrintInformationPatches(QObject):
             profile_name = self._global_stack.qualityChanges.getName()
         material_name = "%s %s" % (extruder_stack.material.getMetaDataEntry("brand"), extruder_stack.material.getName())
 
+        try:
+            date_format = Qt.DateFormat.ISODate
+        except AttributeError:
+            date_format = Qt.ISODate
+
         replacements = {
             "{printer_name}": self._abbreviate_name(self._global_stack.getName()),
             "{printer_name_full}": self._global_stack.getName(),
@@ -200,11 +205,11 @@ class PrintInformationPatches(QObject):
             "{material_weight}": str(round(self._print_information.materialWeights[extruder_nr]) if extruder_nr < len(self._print_information.materialWeights) else 0),
             "{print_time_hours}": str(self._print_information.currentPrintTime.days * 24 + self._print_information.currentPrintTime.hours),
             "{print_time_minutes}": str(self._print_information.currentPrintTime.minutes).zfill(2),
-            "{date_iso}": QDate.currentDate().toString(format=Qt.ISODate),
+            "{date_iso}": QDate.currentDate().toString(format=date_format),
             "{date_year}": QDate.currentDate().toString("yy"),
             "{date_month}": QDate.currentDate().toString("MM"),
             "{date_day}": QDate.currentDate().toString("dd"),
-            "{time_iso}": QTime.currentTime().toString(format=Qt.ISODate),
+            "{time_iso}": QTime.currentTime().toString(format=date_format),
             "{time_hour}": QTime.currentTime().toString("HH"),
             "{time_minutes}": QTime.currentTime().toString("mm")
         }
