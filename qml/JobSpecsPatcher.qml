@@ -1,8 +1,8 @@
 // Copyright (c) 2022 Aldo Hoeben / fieldOfView
 // CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
-import QtQuick 2.1
-import QtQuick.Controls 2.0
+import QtQuick 2.15
+import QtQuick.Controls 2.4
 
 import UM 1.5 as UM
 import Cura 1.0 as Cura
@@ -106,7 +106,6 @@ Item
             {
                 id: modelNameTextfield
                 height: UM.Theme.getSize("jobspecs_line").height
-                width: __contentWidth + UM.Theme.getSize("default_margin").width
                 maximumLength: 120
                 leftPadding: 0
                 rightPadding: 0
@@ -133,8 +132,8 @@ Item
                     modelNameTextfield.focus = false
                 }
 
-                validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
+                validator: RegularExpressionValidator {
+                    regularExpression: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
                 }
             }
 

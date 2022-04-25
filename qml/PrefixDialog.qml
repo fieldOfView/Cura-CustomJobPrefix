@@ -1,8 +1,8 @@
 // Copyright (c) 2022 Aldo Hoeben / fieldOfView
 // CustomJobPrefix is released under the terms of the AGPLv3 or higher.
 
-import QtQuick 2.1
-import QtQuick.Controls 2.0
+import QtQuick 2.15
+import QtQuick.Controls 2.4
 
 import UM 1.5 as UM
 import Cura 1.0 as Cura
@@ -80,8 +80,8 @@ UM.Dialog
                 text: manager.jobPrefix
                 width: Math.floor(base.width * 0.8)
                 maximumLength: 255
-                validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
+                validator: RegularExpressionValidator {
+                    regularExpression: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
                 }
                 enabled: prefixJobNameCheckbox.checked
             }
@@ -97,8 +97,8 @@ UM.Dialog
                 text: manager.jobPostfix
                 width: Math.floor(base.width * 0.8)
                 maximumLength: 255
-                validator: RegExpValidator {
-                    regExp: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
+                validator: RegularExpressionValidator {
+                    regularExpression: /^[^\\\/\*\?\|\[\]\;\~\&\"]*$/
                 }
                 enabled: prefixJobNameCheckbox.checked
             }
@@ -126,8 +126,8 @@ UM.Dialog
                         text: manager.jobPath
                         width: Math.floor(base.width * 0.8)
                         maximumLength: 255
-                        validator: RegExpValidator {
-                            regExp: /^[^\/][^\\\*\?\|\[\]\;\~\&\"]*$/
+                        validator: RegularExpressionValidator {
+                            regularExpression: /^[^\/][^\\\*\?\|\[\]\;\~\&\"]*$/
                         }
                         enabled: prefixJobNameCheckbox.checked
                     }
@@ -141,7 +141,7 @@ UM.Dialog
 
                     text: catalog.i18nc("@info:tooltip", "The current output does not support paths.")
 
-                    UM.RecolorImage
+                    UM.ColorImage
                     {
                         width: Math.round(pathFieldContainer.height * 0.6) | 0
                         height: width
