@@ -5,7 +5,7 @@
         "email": "aldo@fieldofview.com",
         "website": "http://fieldofview.com"
     },
-    "description": "Lets the user customise the prefix and postfix for print jobs (gcode files) on a per-printer basis. \n\nFormerly known as Custom Printjob Prefix.\n\nThe development of this plugin can be sponsored via Github Sponsors (https://github.com/sponsors/fieldofview) or Paypal (https://www.paypal.me/fieldofview)",
+    "description": "Lets the user customise the prefix and postfix for print jobs (gcode files) on a per-printer basis.\n\nFormerly known as Custom Printjob Prefix.\n\nThe development of this plugin can be sponsored via Github Sponsors (https://github.com/sponsors/fieldofview) or Paypal (https://www.paypal.me/fieldofview)",
     "display_name": "Printjob Naming",
     "package_id": "CustomJobPrefix",
     "package_type": "plugin",
