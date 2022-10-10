@@ -8,10 +8,14 @@ from UM.Logger import Logger
 from UM.Version import Version
 from cura.CuraApplication import CuraApplication
 
-USE_QT5 = False
 try:
+    from cura.ApplicationMetadata import CuraSDKVersion
+except ImportError: # Cura <= 3.6
+    CuraSDKVersion = "6.0.0"
+USE_QT5 = False
+if CuraSDKVersion >= "8.0.0":
     from PyQt6.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
-except ImportError:
+else:
     from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
     USE_QT5 = True
 
