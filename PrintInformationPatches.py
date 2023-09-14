@@ -196,7 +196,7 @@ class PrintInformationPatches(QObject):
             "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
             "{printer_type_full}": self._global_stack.definition.getName(),
             "{layer_height}": self._abbreviate_number_leading_zero(self._global_stack.getProperty("layer_height", "value")),
-            "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
+            "{machine_nozzle_size}": self._abbreviate_number_leading_zero(extruder_stack.getProperty("machine_nozzle_size", "value")),
             "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
             "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
             "{material_temperature}": self._abbreviate_number(int(float(extruder_stack.getProperty("material_print_temperature", "value")))),
