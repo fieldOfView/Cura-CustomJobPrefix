@@ -8,12 +8,8 @@ import os.path
 import unicodedata
 
 try:
-    from cura.ApplicationMetadata import CuraSDKVersion
-except ImportError: # Cura <= 3.6
-    CuraSDKVersion = "6.0.0"
-if CuraSDKVersion >= "8.0.0":
     from PyQt6.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
-else:
+except ImportError:
     from PyQt5.QtCore import Qt, QDate, QTime, QObject, pyqtProperty, pyqtSignal, pyqtSlot
 
 from typing import Any, Optional, TYPE_CHECKING
@@ -195,10 +191,11 @@ class PrintInformationPatches(QObject):
             "{printer_name_full}": self._global_stack.getName(),
             "{printer_type}": self._abbreviate_name(self._global_stack.definition.getName()),
             "{printer_type_full}": self._global_stack.definition.getName(),
-            "{layer_height}": self._abbreviate_number(self._global_stack.getProperty("layer_height", "value")),
+            "{layer_height}": self._abbreviate_number_leading_zero(self._global_stack.getProperty("layer_height", "value")),
             "{machine_nozzle_size}": self._abbreviate_number(extruder_stack.getProperty("machine_nozzle_size", "value")),
             "{infill_sparse_density}": self._abbreviate_number(extruder_stack.getProperty("infill_sparse_density", "value")),
             "{speed_print}": self._abbreviate_number(extruder_stack.getProperty("speed_print", "value")),
+            "{material_temperature}": self._abbreviate_number(int(float(extruder_stack.getProperty("material_print_temperature", "value")))),
             "{material_flow}": self._abbreviate_number(extruder_stack.getProperty("material_flow", "value")),
             "{profile_name}": self._abbreviate_name(profile_name),
             "{profile_name_full}": profile_name,
@@ -237,6 +234,9 @@ class PrintInformationPatches(QObject):
 
     def _abbreviate_number(self, number: float) -> str:
         return str(number).replace(".", "")
+    
+    def _abbreviate_number_leading_zero(self, number: float) -> str:
+        return str(number)
 
     def _abbreviate_name(self, name: str) -> str:
         abbr_name = ""
